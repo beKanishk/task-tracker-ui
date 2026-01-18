@@ -29,7 +29,15 @@ export default function Dashboard() {
         ];
 
         setTodayTasks(allTodayTasks);
-        setHeatmap(heatmapRes.data.activity.slice(-7));
+        const todayIndex = new Date().getDate() - 1;
+
+        const last7Days = heatmapRes.data.activity.slice(
+          Math.max(0, todayIndex - 6),
+          todayIndex + 1
+        );
+
+        setHeatmap(last7Days);
+
       } catch (err) {
         console.error("Dashboard load failed", err);
       } finally {
