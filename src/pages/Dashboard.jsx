@@ -4,6 +4,7 @@ import MiniHeatmap from "../components/MiniHeatmap";
 import QuickLogModal from "../components/QuickLogModal";
 import TodayTaskList from "../components/TodayTaskList";
 import CompletionBanner from "../components/CompletionBanner";
+import { canLog } from "../utils/taskUtils";
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
@@ -13,40 +14,51 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadDashboard() {
-      try {
-        const [summaryRes, taskStateRes, heatmapRes] = await Promise.all([
-          api.get("/api/summary/today"),
-          api.get("/api/tasks/state/today"),
-          api.get(`/api/heatmap/month?year=2026&month=1`),
-        ]);
-
-        setSummary(summaryRes.data);
-
-        const allTodayTasks = [
-          ...(taskStateRes.data.inProgressToday || []),
-          ...(taskStateRes.data.completedToday || []),
-        ];
-
-        setTodayTasks(allTodayTasks);
-        const todayIndex = new Date().getDate() - 1;
-
-        const last7Days = heatmapRes.data.activity.slice(
-          Math.max(0, todayIndex - 6),
-          todayIndex + 1
-        );
-
-        setHeatmap(last7Days);
-
-      } catch (err) {
-        console.error("Dashboard load failed", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadDashboard();
   }, []);
+
+
+  async function loadDashboard() {
+    try {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+
+      const [summaryRes, taskStateRes, heatmapRes] = await Promise.all([
+        api.get("/api/summary/today"),
+        api.get("/api/tasks/state/today"),
+        api.get(`/api/heatmap/month?year=${year}&month=${month}`),
+      ]);
+
+      setSummary(summaryRes.data);
+
+      const allTodayTasks = [
+        ...(taskStateRes.data.inProgressToday || []),
+        ...(taskStateRes.data.completedToday || []),
+      ];
+
+      setTodayTasks(allTodayTasks);
+
+      const todayIndex = new Date().getDate() - 1;
+      const last7Days = heatmapRes.data.activity.slice(
+        Math.max(0, todayIndex - 6),
+        todayIndex + 1
+      );
+
+      setHeatmap(last7Days);
+    } catch (err) {
+      console.error("Dashboard load failed", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function refreshDashboard() {
+    setLoading(true);
+    await loadDashboard();
+  }
+
+
 
   async function undoTask(task) {
     try {
@@ -107,7 +119,10 @@ export default function Dashboard() {
       {/* TODAY TASKS */}
       <TodayTaskList
         tasks={todayTasks}
-        onLog={(task) => setActiveTask(task)}
+        onLog={(task) => {
+          if (!canLog(task)) return;   // 🔒 HARD BLOCK
+          setActiveTask(task);
+        }}
         onUndo={undoTask}
       />
 
@@ -123,7 +138,7 @@ export default function Dashboard() {
         <QuickLogModal
           task={activeTask}
           onClose={() => setActiveTask(null)}
-          onSuccess={() => window.location.reload()}
+          onSuccess={refreshDashboard}
         />
       )}
     </div>

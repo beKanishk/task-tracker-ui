@@ -9,7 +9,8 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
 
-    if (token) {
+    // 🚫 Do NOT attach token to auth endpoints
+    if (token && !config.url.startsWith("/auth")) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -24,13 +25,13 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
 
-    // Token expired / invalid / unauthorized
+    // Only logout on AUTH failures
     if (status === 401 || status === 403) {
       console.warn("Auth error, redirecting to login");
 
       localStorage.removeItem("token");
 
-      // Hard redirect to avoid stale state
+      // Hard redirect avoids React stale state
       window.location.href = "/login";
     }
 
