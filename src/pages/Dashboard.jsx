@@ -4,10 +4,12 @@ import MiniHeatmap from "../components/MiniHeatmap";
 import QuickLogModal from "../components/QuickLogModal";
 import TodayTaskList from "../components/TodayTaskList";
 import CompletionBanner from "../components/CompletionBanner";
+import StreakCard from "../components/StreakCard";
 import { canLog } from "../utils/taskUtils";
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
+  const [streak, setStreak] = useState(null);
   const [heatmap, setHeatmap] = useState([]);
   const [todayTasks, setTodayTasks] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
@@ -17,26 +19,31 @@ export default function Dashboard() {
     loadDashboard();
   }, []);
 
-
   async function loadDashboard() {
     try {
       const now = new Date();
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
 
-      const [summaryRes, taskStateRes, heatmapRes] = await Promise.all([
+      const [
+        summaryRes,
+        taskStateRes,
+        heatmapRes,
+        streakRes,
+      ] = await Promise.all([
         api.get("/api/summary/today"),
         api.get("/api/tasks/state/today"),
         api.get(`/api/heatmap/month?year=${year}&month=${month}`),
+        api.get("/api/streak"), // ✅ NEW
       ]);
 
       setSummary(summaryRes.data);
+      setStreak(streakRes.data);
 
       const allTodayTasks = [
         ...(taskStateRes.data.inProgressToday || []),
         ...(taskStateRes.data.completedToday || []),
       ];
-
       setTodayTasks(allTodayTasks);
 
       const todayIndex = new Date().getDate() - 1;
@@ -44,8 +51,8 @@ export default function Dashboard() {
         Math.max(0, todayIndex - 6),
         todayIndex + 1
       );
-
       setHeatmap(last7Days);
+
     } catch (err) {
       console.error("Dashboard load failed", err);
     } finally {
@@ -57,8 +64,6 @@ export default function Dashboard() {
     setLoading(true);
     await loadDashboard();
   }
-
-
 
   async function undoTask(task) {
     try {
@@ -81,14 +86,20 @@ export default function Dashboard() {
   }
 
   if (loading) {
-    return <div className="p-6 text-gray-400 animate-pulse">Loading dashboard…</div>;
+    return (
+      <div className="p-6 text-gray-400 animate-pulse">
+        Loading dashboard…
+      </div>
+    );
   }
 
-  if (!summary) {
-    return <div className="p-6 text-red-400">Failed to load dashboard</div>;
+  if (!summary || !streak) {
+    return (
+      <div className="p-6 text-red-400">
+        Failed to load dashboard
+      </div>
+    );
   }
-
-  const streak = calculateStreak(heatmap);
 
   return (
     <div className="p-6 text-white space-y-8">
@@ -98,17 +109,44 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold">
           Welcome back <span className="text-green-400">Kanishk</span> 👋
         </h1>
-        <p className="text-gray-400 mt-1">
-          🔥 {streak}-day streak — keep going
-        </p>
+
+        {streak.forgivenessUsed > 0 ? (
+          <p className="text-yellow-400 mt-1 text-sm">
+            ⚠️ Forgiveness used: {streak.forgivenessUsed} /{" "}
+            {streak.forgivenessAllowed}
+          </p>
+        ) : (
+          <p className="text-green-400 mt-1 text-sm">
+            🏆 Perfect streak — no forgiveness used
+          </p>
+        )}
       </div>
 
-      {/* STATS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Completed" value={summary.tasksCompleted} color="green" />
-        <StatCard label="In Progress" value={summary.tasksInProgress} color="yellow" />
-        <StatCard label="Avg Progress" value={`${summary.totalProgressPercent}%`} color="blue" />
-        <StatCard label="Streak" value={`🔥 ${streak}`} color="red" />
+      {/* STATS + STREAK */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+
+        <StatCard
+          label="Completed"
+          value={summary.tasksCompleted}
+          color="green"
+        />
+
+        <StatCard
+          label="In Progress"
+          value={summary.tasksInProgress}
+          color="yellow"
+        />
+
+        <StatCard
+          label="Avg Progress"
+          value={`${summary.totalProgressPercent}%`}
+          color="blue"
+        />
+
+        {/* STREAK CARD SPANS */}
+        <div className="sm:col-span-2">
+          <StreakCard streak={streak} />
+        </div>
       </div>
 
       {/* HEATMAP */}
@@ -120,7 +158,7 @@ export default function Dashboard() {
       <TodayTaskList
         tasks={todayTasks}
         onLog={(task) => {
-          if (!canLog(task)) return;   // 🔒 HARD BLOCK
+          if (!canLog(task)) return; // 🔒 HARD BLOCK
           setActiveTask(task);
         }}
         onUndo={undoTask}
@@ -145,7 +183,7 @@ export default function Dashboard() {
   );
 }
 
-/* ===== HELPERS ===== */
+/* ================= HELPERS ================= */
 
 function StatCard({ label, value, color }) {
   const colors = {
@@ -158,16 +196,9 @@ function StatCard({ label, value, color }) {
   return (
     <div className="bg-gray-800 p-4 rounded-xl border border-gray-700">
       <p className="text-gray-400 text-sm">{label}</p>
-      <p className={`text-2xl font-bold ${colors[color]}`}>{value}</p>
+      <p className={`text-2xl font-bold ${colors[color]}`}>
+        {value}
+      </p>
     </div>
   );
-}
-
-function calculateStreak(activity) {
-  let streak = 0;
-  for (let i = activity.length - 1; i >= 0; i--) {
-    if (activity[i] > 0) streak++;
-    else break;
-  }
-  return streak;
 }
