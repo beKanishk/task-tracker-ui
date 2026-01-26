@@ -7,6 +7,8 @@ import TodayTaskList from "../components/TodayTaskList";
 import CompletionBanner from "../components/CompletionBanner";
 import StreakCard from "../components/StreakCard";
 import ForgivenessBanner from "../components/ForgivenessBanner";
+import FatigueCard from "../components/FatigueCard";
+import FatigueWarning from "../components/FatigueWarning";
 
 import { canLog } from "../utils/taskUtils";
 
@@ -24,10 +26,12 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [summary, setSummary] = useState(null);
   const [streak, setStreak] = useState(null);
+  const [fatigue, setFatigue] = useState(null);
   const [heatmap, setHeatmap] = useState([]);
   const [todayTasks, setTodayTasks] = useState([]);
   const [activeTask, setActiveTask] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fatigueLoading, setFatigueLoading] = useState(false);
 
   useEffect(() => {
     loadDashboard();
@@ -45,17 +49,20 @@ export default function Dashboard() {
         heatmapRes,
         streakRes,
         userRes,
+        fatigueRes,
       ] = await Promise.all([
         api.get("/api/summary/today"),
         api.get("/api/tasks/state/today"),
         api.get(`/api/heatmap/month?year=${year}&month=${month}`),
         api.get("/api/streak"),
-        api.get("/api/users/me"), // ✅ USER
+        api.get("/api/users/me"),
+        api.get("/api/fatigue"),
       ]);
 
       setSummary(summaryRes.data);
       setStreak(streakRes.data);
       setUser(userRes.data);
+      setFatigue(fatigueRes.data);
 
       const allTodayTasks = [
         ...(taskStateRes.data.inProgressToday || []),
@@ -79,6 +86,18 @@ export default function Dashboard() {
   async function refreshDashboard() {
     setLoading(true);
     await loadDashboard();
+  }
+
+  async function recomputeFatigue() {
+    try {
+      setFatigueLoading(true);
+      const res = await api.post("/api/fatigue/recompute");
+      setFatigue(res.data);
+    } catch (err) {
+      console.error("Failed to recompute fatigue", err);
+    } finally {
+      setFatigueLoading(false);
+    }
   }
 
   async function undoTask(task) {
@@ -111,7 +130,7 @@ export default function Dashboard() {
     );
   }
 
-  if (!summary || !streak || !user) {
+  if (!summary || !streak || !user || !fatigue) {
     return (
       <div className="p-6 text-red-400">
         Failed to load dashboard
@@ -133,12 +152,8 @@ export default function Dashboard() {
     streak.forgivenessAllowed > 0 &&
     streak.forgivenessUsed + missedDays <= streak.forgivenessAllowed;
 
-  const forgivenessUsed = streak.forgivenessUsed > 0;
   const forgivenessLeft =
     streak.forgivenessAllowed - streak.forgivenessUsed;
-
-  const streakAtRisk =
-    missedDays === 1 && !forgivenessPending;
 
   /* ================= RENDER ================= */
 
@@ -146,79 +161,62 @@ export default function Dashboard() {
     <div className="p-6 text-white space-y-8">
 
       {/* ================= HEADER ================= */}
-  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">
+            Welcome back{" "}
+            <span className="text-green-400">{user.name}</span> 👋
+          </h1>
 
-    {/* LEFT */}
-    <div>
-      <h1 className="text-2xl font-bold">
-        Welcome back{" "}
-        <span className="text-green-400">{user.name}</span> 👋
-      </h1>
+          <p className="mt-1 text-sm text-gray-400">
+            Forgiveness left:{" "}
+            <span
+              className={
+                forgivenessLeft === 0
+                  ? "text-red-400 font-semibold"
+                  : forgivenessLeft === 1
+                  ? "text-yellow-400 font-semibold"
+                  : "text-green-400 font-semibold"
+              }
+            >
+              {forgivenessLeft}
+            </span>{" "}
+            / {streak.forgivenessAllowed}
+          </p>
+        </div>
 
-      <p className="mt-1 text-sm">
-        <span className="text-gray-400">Forgiveness left:</span>{" "}
-        <span
-          className={
-            forgivenessLeft === 0
-              ? "text-red-400 font-semibold"
-              : forgivenessLeft === 1
-              ? "text-yellow-400 font-semibold"
-              : "text-green-400 font-semibold"
-          }
+        <button
+          onClick={() => (window.location.href = "/tasks/new")}
+          className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg font-semibold"
         >
-          {forgivenessLeft}
-        </span>
-        <span className="text-gray-400">
-          {" "}
-          / {streak.forgivenessAllowed}
-        </span>
-      </p>
+          + Add Task
+        </button>
+      </div>
 
-      {forgivenessLeft === 0 && (
-        <p className="text-red-400 text-xs mt-1">
-          🚨 Next missed day will break your streak
-        </p>
-      )}
-    </div>
-
-    {/* RIGHT */}
-    <button
-      onClick={() => window.location.href = "/tasks/new"}
-      className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg font-semibold self-start sm:self-center"
-    >
-      + Add Task
-    </button>
-  </div>
-
-
-
-      {/* ================= FORGIVENESS DECISION ================= */}
+      {/* ================= FORGIVENESS ================= */}
       {forgivenessPending && (
         <ForgivenessBanner onDecision={refreshDashboard} />
       )}
 
-      {/* ================= STATS + STREAK ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* ================= FATIGUE WARNING ================= */}
+      <FatigueWarning fatigue={fatigue} />
 
-        <StatCard
-          label="Completed"
-          value={summary.tasksCompleted}
-          color="green"
-        />
+      {/* ================= STATS + FATIGUE + STREAK ================= */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
 
-        <StatCard
-          label="In Progress"
-          value={summary.tasksInProgress}
-          color="yellow"
-        />
+        <StatCard label="Completed" value={summary.tasksCompleted} color="green" />
+        <StatCard label="In Progress" value={summary.tasksInProgress} color="yellow" />
+        <StatCard label="Avg Progress" value={`${summary.totalProgressPercent}%`} color="blue" />
 
-        <StatCard
-          label="Avg Progress"
-          value={`${summary.totalProgressPercent}%`}
-          color="blue"
-        />
+        <div className="lg:col-span-2">
+          <FatigueCard
+            fatigue={fatigue}
+            onRecompute={recomputeFatigue}
+            loading={fatigueLoading}
+          />
+        </div>
 
-        <div className="sm:col-span-2">
+        <div className="lg:col-span-2">
           <StreakCard streak={streak} />
         </div>
       </div>
@@ -226,21 +224,6 @@ export default function Dashboard() {
       {/* ================= HEATMAP ================= */}
       <div className="bg-gray-800 p-4 rounded-xl border border-gray-700">
         <MiniHeatmap activity={heatmap} />
-
-        <div className="flex gap-4 text-xs text-gray-400 mt-3">
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-3 bg-green-500 rounded-sm" />
-            Completed
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-3 bg-yellow-400 rounded-sm" />
-            Forgiven
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-3 bg-gray-600 rounded-sm" />
-            Missed
-          </span>
-        </div>
       </div>
 
       {/* ================= TODAY TASKS ================= */}
@@ -283,9 +266,11 @@ function StatCard({ label, value, color }) {
   };
 
   return (
-    <div className="bg-gray-800 p-4 rounded-xl border border-gray-700">
-      <p className="text-gray-400 text-sm">{label}</p>
-      <p className={`text-2xl font-bold ${colors[color]}`}>
+    <div className="bg-gray-800 px-4 py-3 rounded-lg border border-gray-700 h-[90px] flex flex-col justify-between">
+      <p className="text-[11px] uppercase tracking-wider text-gray-500">
+        {label}
+      </p>
+      <p className={`text-xl font-semibold ${colors[color]}`}>
         {value}
       </p>
     </div>
