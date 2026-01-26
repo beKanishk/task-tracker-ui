@@ -21,6 +21,7 @@ function daysBetween(dateA, dateB) {
 /* ================= COMPONENT ================= */
 
 export default function Dashboard() {
+  const [user, setUser] = useState(null);
   const [summary, setSummary] = useState(null);
   const [streak, setStreak] = useState(null);
   const [heatmap, setHeatmap] = useState([]);
@@ -43,15 +44,18 @@ export default function Dashboard() {
         taskStateRes,
         heatmapRes,
         streakRes,
+        userRes,
       ] = await Promise.all([
         api.get("/api/summary/today"),
         api.get("/api/tasks/state/today"),
         api.get(`/api/heatmap/month?year=${year}&month=${month}`),
         api.get("/api/streak"),
+        api.get("/api/users/me"), // ✅ USER
       ]);
 
       setSummary(summaryRes.data);
       setStreak(streakRes.data);
+      setUser(userRes.data);
 
       const allTodayTasks = [
         ...(taskStateRes.data.inProgressToday || []),
@@ -65,7 +69,6 @@ export default function Dashboard() {
         todayIndex + 1
       );
       setHeatmap(last7Days);
-
     } catch (err) {
       console.error("Dashboard load failed", err);
     } finally {
@@ -98,6 +101,8 @@ export default function Dashboard() {
     }
   }
 
+  /* ================= LOADING / ERROR ================= */
+
   if (loading) {
     return (
       <div className="p-6 text-gray-400 animate-pulse">
@@ -106,7 +111,7 @@ export default function Dashboard() {
     );
   }
 
-  if (!summary || !streak) {
+  if (!summary || !streak || !user) {
     return (
       <div className="p-6 text-red-400">
         Failed to load dashboard
@@ -125,14 +130,15 @@ export default function Dashboard() {
 
   const forgivenessPending =
     missedDays > 0 &&
-    streak.forgivenessUsed === 0 &&
-    streak.forgivenessAllowed > 0;
+    streak.forgivenessAllowed > 0 &&
+    streak.forgivenessUsed + missedDays <= streak.forgivenessAllowed;
 
   const forgivenessUsed = streak.forgivenessUsed > 0;
   const forgivenessLeft =
     streak.forgivenessAllowed - streak.forgivenessUsed;
 
-  const streakAtRisk = missedDays === 1 && !forgivenessPending;
+  const streakAtRisk =
+    missedDays === 1 && !forgivenessPending;
 
   /* ================= RENDER ================= */
 
@@ -140,28 +146,51 @@ export default function Dashboard() {
     <div className="p-6 text-white space-y-8">
 
       {/* ================= HEADER ================= */}
-      <div>
-        <h1 className="text-2xl font-bold">
-          Welcome back <span className="text-green-400">Kanishk</span> 👋
-        </h1>
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-        {forgivenessUsed ? (
-          <p className="text-yellow-400 mt-1 text-sm">
-            ⚠️ Forgiveness used: {streak.forgivenessUsed} /{" "}
-            {streak.forgivenessAllowed} days
-          </p>
-        ) : (
-          <p className="text-green-400 mt-1 text-sm">
-            🏆 Perfect streak — no forgiveness used
-          </p>
-        )}
+    {/* LEFT */}
+    <div>
+      <h1 className="text-2xl font-bold">
+        Welcome back{" "}
+        <span className="text-green-400">{user.name}</span> 👋
+      </h1>
 
-        {streakAtRisk && (
-          <p className="text-orange-400 text-sm mt-1">
-            ⚠️ One more missed day will break your streak
-          </p>
-        )}
-      </div>
+      <p className="mt-1 text-sm">
+        <span className="text-gray-400">Forgiveness left:</span>{" "}
+        <span
+          className={
+            forgivenessLeft === 0
+              ? "text-red-400 font-semibold"
+              : forgivenessLeft === 1
+              ? "text-yellow-400 font-semibold"
+              : "text-green-400 font-semibold"
+          }
+        >
+          {forgivenessLeft}
+        </span>
+        <span className="text-gray-400">
+          {" "}
+          / {streak.forgivenessAllowed}
+        </span>
+      </p>
+
+      {forgivenessLeft === 0 && (
+        <p className="text-red-400 text-xs mt-1">
+          🚨 Next missed day will break your streak
+        </p>
+      )}
+    </div>
+
+    {/* RIGHT */}
+    <button
+      onClick={() => window.location.href = "/tasks/new"}
+      className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg font-semibold self-start sm:self-center"
+    >
+      + Add Task
+    </button>
+  </div>
+
+
 
       {/* ================= FORGIVENESS DECISION ================= */}
       {forgivenessPending && (
@@ -198,7 +227,6 @@ export default function Dashboard() {
       <div className="bg-gray-800 p-4 rounded-xl border border-gray-700">
         <MiniHeatmap activity={heatmap} />
 
-        {/* LEGEND */}
         <div className="flex gap-4 text-xs text-gray-400 mt-3">
           <span className="flex items-center gap-1">
             <span className="w-3 h-3 bg-green-500 rounded-sm" />

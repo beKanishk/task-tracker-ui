@@ -102,12 +102,12 @@ export default function AppLayout() {
             ☰
           </button>
 
-          <button
+          {/* <button
             onClick={() => navigate("/tasks/new")}
             className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold"
           >
             + Add Task
-          </button>
+          </button> */}
         </div>
 
         <Outlet />
