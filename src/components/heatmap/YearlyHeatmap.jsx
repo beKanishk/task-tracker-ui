@@ -1,4 +1,4 @@
-// src/components/heatmap/YearlyHeatmap.jsx
+import HeatmapLegend from "./HeatmapLegend";
 
 const MONTHS = [
   "January", "February", "March", "April",
@@ -58,6 +58,7 @@ export default function YearlyHeatmap({ yearData }) {
           </div>
         </div>
       ))}
+    <HeatmapLegend />
     </div>
   );
 }

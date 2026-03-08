@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -9,24 +9,18 @@ export default function Login() {
   const [error, setError] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const expired = searchParams.get("expired") === "true";
 
   const handleLogin = async (e) => {
     e.preventDefault();
     localStorage.removeItem("token");
-     console.log("LOGIN PAYLOAD", {
-    username,
-    password,
-  });
 
     try {
-      const res = await api.post("/auth/token", {
-        username,
-        password,
-      });
+      const res = await api.post("/auth/token", { username, password });
       login(res.data);
       navigate("/dashboard");
     } catch (err) {
-        console.error("LOGIN ERROR", err.response?.data || err.message);
       setError("Invalid credentials");
     }
   };
@@ -39,11 +33,17 @@ export default function Login() {
       >
         <h2 className="text-2xl font-bold text-white mb-6">Login</h2>
 
+        {expired && (
+          <p className="text-yellow-400 mb-3 text-sm">
+            Session expired. Please sign in again.
+          </p>
+        )}
         {error && <p className="text-red-400 mb-3">{error}</p>}
 
         <input
           className="w-full p-2 mb-4 rounded bg-gray-700 text-white"
           placeholder="Username"
+          value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
 
@@ -51,12 +51,20 @@ export default function Login() {
           type="password"
           className="w-full p-2 mb-6 rounded bg-gray-700 text-white"
           placeholder="Password"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
         <button className="w-full bg-green-500 hover:bg-green-600 p-2 rounded font-bold">
           Login
         </button>
+
+        <p className="text-gray-400 text-sm mt-5 text-center">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-green-400 hover:underline">
+            Create one
+          </Link>
+        </p>
       </form>
     </div>
   );

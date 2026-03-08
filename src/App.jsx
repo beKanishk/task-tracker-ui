@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import HeatmapPage from "./pages/HeatmapPage";
@@ -16,6 +17,7 @@ export default function App() {
 
           {/* PUBLIC */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* PROTECTED APP */}
           <Route

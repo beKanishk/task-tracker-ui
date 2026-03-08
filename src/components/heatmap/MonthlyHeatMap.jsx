@@ -1,3 +1,5 @@
+import HeatmapLegend from "./HeatmapLegend";
+
 export default function MonthlyHeatmap({ yearData }) {
   if (!Array.isArray(yearData) || yearData.length === 0) {
     return (
@@ -37,6 +39,7 @@ export default function MonthlyHeatmap({ yearData }) {
           />
         ))}
       </div>
+      <HeatmapLegend />
     </div>
   );
 }

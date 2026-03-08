@@ -32,7 +32,7 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
 
       // Hard redirect avoids React stale state
-      window.location.href = "/login";
+      window.location.href = "/login?expired=true";
     }
 
     return Promise.reject(error);

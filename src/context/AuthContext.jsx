@@ -2,10 +2,25 @@ import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
 
+function isTokenValid(jwt) {
+  if (!jwt) return false;
+  try {
+    const payload = JSON.parse(atob(jwt.split(".")[1]));
+    return payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+}
+
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(
-    localStorage.getItem("token")
-  );
+  const [token, setToken] = useState(() => {
+    const stored = localStorage.getItem("token");
+    if (!isTokenValid(stored)) {
+      localStorage.removeItem("token");
+      return null;
+    }
+    return stored;
+  });
 
   const login = (jwt) => {
     localStorage.setItem("token", jwt);

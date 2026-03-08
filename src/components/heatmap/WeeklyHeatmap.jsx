@@ -1,3 +1,5 @@
+import HeatmapLegend from "./HeatmapLegend";
+
 export default function WeeklyHeatmap({ yearData }) {
   const today = new Date();
   const month = today.getMonth();
@@ -25,6 +27,7 @@ export default function WeeklyHeatmap({ yearData }) {
           />
         ))}
       </div>
+      <HeatmapLegend />
     </div>
   );
 }
