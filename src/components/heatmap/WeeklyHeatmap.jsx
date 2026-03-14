@@ -14,7 +14,8 @@ export default function WeeklyHeatmap({ yearData }) {
     <div>
       <p className="text-sm text-gray-400 mb-3">Last 7 days</p>
 
-      <div className="flex gap-2">
+      <div className="overflow-x-auto">
+      <div className="flex gap-2 min-w-fit">
         {week.map((v, i) => (
           <div
             key={i}
@@ -26,6 +27,7 @@ export default function WeeklyHeatmap({ yearData }) {
             }`}
           />
         ))}
+      </div>
       </div>
       <HeatmapLegend />
     </div>

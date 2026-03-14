@@ -71,7 +71,8 @@ export default function HeatmapChart({ yearData, mode, year, month }) {
 
   return (
     <div>
-      <div className="h-[320px]">
+      <div className="overflow-x-auto">
+      <div className="h-[320px] min-w-[500px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data}>
           <XAxis dataKey="label" stroke="#9CA3AF" />
@@ -90,6 +91,7 @@ export default function HeatmapChart({ yearData, mode, year, month }) {
           />
         </BarChart>
       </ResponsiveContainer>
+      </div>
       </div>
       <p className="text-xs text-gray-500 mt-2 text-right">
         Bar height = total completions

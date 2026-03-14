@@ -53,7 +53,7 @@ export default function HeatmapPage() {
   }
 
   return (
-    <div className="p-6 text-white space-y-6">
+    <div className="p-3 sm:p-6 text-white space-y-6">
       {/* HEADER */}
       <div>
         <h1 className="text-2xl font-bold">🔥 Activity Heatmap</h1>
@@ -61,7 +61,7 @@ export default function HeatmapPage() {
       </div>
 
       {/* TABS */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {TABS.map(t => (
           <button
             key={t}
@@ -82,7 +82,7 @@ export default function HeatmapPage() {
 
       {/* GRAPH FILTERS */}
       {activeTab === "graph" && (
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-wrap gap-3 items-center">
           <select
             value={year}
             onChange={e => setYear(Number(e.target.value))}
@@ -107,7 +107,7 @@ export default function HeatmapPage() {
             </select>
           )}
 
-          <div className="flex gap-2 ml-auto">
+          <div className="flex gap-2">
             {["week", "month", "year"].map(m => (
               <button
                 key={m}
@@ -126,7 +126,7 @@ export default function HeatmapPage() {
       )}
 
       {/* CONTENT */}
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+      <div className="bg-gray-900 rounded-xl p-3 sm:p-6 border border-gray-800">
         {activeTab === "week" && <WeeklyHeatmap yearData={heatmapData} />}
         {activeTab === "month" && <MonthlyHeatmap yearData={heatmapData} />}
         {activeTab === "year" && <YearlyHeatmap yearData={heatmapData} />}
