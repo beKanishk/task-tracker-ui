@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import WeeklyHeatmap from "../components/heatmap/WeeklyHeatmap";
-import MonthlyHeatmap from "../components/heatmap/MonthlyHeatmap";
+import MonthlyHeatmap from "../components/heatmap/MonthlyHeatMap";
 import YearlyHeatmap from "../components/heatmap/YearlyHeatmap";
 import HeatmapChart from "../components/heatmap/HeatmapChart";
 
