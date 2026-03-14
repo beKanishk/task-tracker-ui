@@ -39,7 +39,7 @@ export default function TaskHistoryModal({ task, onClose }) {
                 <span className="text-gray-300">{entry.date}</span>
                 <span className="text-green-400 font-medium">
                   {task.taskType === "BOOLEAN"
-                    ? entry.completed ? "Done" : "Not done"
+                    ? entry.completedToday ? "Done" : "Not done"
                     : `${entry.valueCompleted ?? 0} / ${task.targetValue} ${task.unit ?? ""}`}
                 </span>
               </li>
