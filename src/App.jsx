@@ -5,7 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
 import HeatmapPage from "./pages/HeatmapPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
-import AdminFeedbackPage from "./pages/AdminFeedbackPage";
+import AdminPage from "./pages/AdminPage";
 import AppLayout from "./layouts/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ErrorPage from "./pages/ErrorPage";
@@ -33,7 +33,7 @@ export default function App() {
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/tasks/new" element={<CreateTaskPage />} />
             <Route path="/heatmap" element={<HeatmapPage />} />
-            <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Route>
 
           {/* 404 FALLBACK */}

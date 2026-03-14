@@ -32,7 +32,12 @@ export default function Register() {
     setSubmitting(true);
     setErrors({});
     try {
-      await api.post("/auth/register", form);
+      await api.post("/auth/register", {
+        name: form.name.trim(),
+        userName: form.userName.trim(),
+        email: form.email.trim(),
+        password: form.password,
+      });
       setSuccess(true);
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
@@ -42,11 +47,14 @@ export default function Register() {
     }
   };
 
+  const MAX_LENGTHS = { name: 50, userName: 50, email: 100, password: 100 };
+
   const field = (label, key, type = "text", placeholder = "") => (
     <div className="mb-4">
       <label className="block text-sm text-gray-400 mb-1">{label}</label>
       <input
         type={type}
+        maxLength={MAX_LENGTHS[key]}
         className={`w-full p-2 rounded bg-gray-700 text-white border ${
           errors[key] ? "border-red-500" : "border-transparent"
         }`}

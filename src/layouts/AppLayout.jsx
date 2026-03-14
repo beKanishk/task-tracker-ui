@@ -15,7 +15,7 @@ export default function AppLayout() {
     } else {
       logout();
     }
-    navigate("/login");
+    navigate("/dashboard");
   }
 
   return (
@@ -85,7 +85,7 @@ export default function AppLayout() {
 
             {isAdmin && (
               <NavLink
-                to="/admin/feedback"
+                to="/admin"
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
                   `block px-3 py-2 rounded ${
@@ -110,16 +110,14 @@ export default function AppLayout() {
             </button>
           )}
 
-          <button
-            onClick={handleLogout}
-            className={`w-full px-3 py-2 rounded font-semibold ${
-              demoMode
-                ? "bg-gray-600 hover:bg-gray-500"
-                : "bg-red-600 hover:bg-red-500"
-            }`}
-          >
-            {demoMode ? "Exit Demo" : "Logout"}
-          </button>
+          {!demoMode && (
+            <button
+              onClick={handleLogout}
+              className="w-full px-3 py-2 rounded font-semibold bg-red-600 hover:bg-red-500"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </aside>
 

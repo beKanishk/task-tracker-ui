@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
+import { DEMO_TASK_HISTORY } from "../data/demoData";
 
 export default function TaskHistoryModal({ task, onClose }) {
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { demoMode } = useAuth();
+  const [history, setHistory] = useState(demoMode ? (DEMO_TASK_HISTORY[task.id] ?? []) : []);
+  const [loading, setLoading] = useState(!demoMode);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (demoMode) return;
     api
       .get(`/api/progress/task/${task.id}/history`)
       .then((res) => setHistory(res.data))

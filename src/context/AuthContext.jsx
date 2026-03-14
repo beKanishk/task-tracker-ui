@@ -31,7 +31,10 @@ export const AuthProvider = ({ children }) => {
     return stored;
   });
 
-  const [demoMode, setDemoMode] = useState(false);
+  const [demoMode, setDemoMode] = useState(() => {
+    const stored = localStorage.getItem("token");
+    return !isTokenValid(stored);
+  });
 
   const [isAdmin, setIsAdmin] = useState(() => {
     const stored = localStorage.getItem("token");
@@ -49,6 +52,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     setToken(null);
     setIsAdmin(false);
+    setDemoMode(true);
   };
 
   const enterDemo = () => setDemoMode(true);

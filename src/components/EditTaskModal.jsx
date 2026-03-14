@@ -9,8 +9,8 @@ export default function EditTaskModal({ task, onClose, onSuccess }) {
   async function handleSave() {
     await api.put("/api/tasks", {
       taskId: task.id,
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim() || null,
       targetValue:
         task.taskType === "QUANTITATIVE"
           ? Number(targetValue)
@@ -28,12 +28,14 @@ export default function EditTaskModal({ task, onClose, onSuccess }) {
 
         <input
           className="w-full bg-gray-800 p-2 rounded"
+          maxLength={100}
           value={title}
           onChange={e => setTitle(e.target.value)}
         />
 
         <textarea
           className="w-full bg-gray-800 p-2 rounded"
+          maxLength={500}
           value={description}
           onChange={e => setDescription(e.target.value)}
         />

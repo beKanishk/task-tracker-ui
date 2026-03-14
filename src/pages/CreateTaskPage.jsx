@@ -75,6 +75,7 @@ export default function CreateTaskPage() {
               errors.title ? "border-red-500" : "border-transparent"
             }`}
             placeholder="e.g. Go to gym"
+            maxLength={100}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -90,6 +91,7 @@ export default function CreateTaskPage() {
             rows={3}
             className="w-full p-2 bg-gray-700 rounded resize-none"
             placeholder="Why this task matters, notes, rules…"
+            maxLength={500}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
@@ -133,6 +135,7 @@ export default function CreateTaskPage() {
               <input
                 className="w-full p-2 bg-gray-700 rounded"
                 placeholder="e.g. reps, km, minutes"
+                maxLength={30}
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
               />

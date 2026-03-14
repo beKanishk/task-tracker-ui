@@ -17,7 +17,7 @@ export default function Login() {
     localStorage.removeItem("token");
 
     try {
-      const res = await api.post("/auth/token", { username, password });
+      const res = await api.post("/auth/token", { username: username.trim(), password });
       login(res.data);
       navigate("/dashboard");
     } catch (err) {
@@ -43,6 +43,7 @@ export default function Login() {
         <input
           className="w-full p-2 mb-4 rounded bg-gray-700 text-white"
           placeholder="Username"
+          maxLength={50}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
@@ -51,6 +52,7 @@ export default function Login() {
           type="password"
           className="w-full p-2 mb-6 rounded bg-gray-700 text-white"
           placeholder="Password"
+          maxLength={100}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />

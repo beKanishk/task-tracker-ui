@@ -81,6 +81,49 @@ export const DEMO_TASKS = [
   },
 ];
 
+export const DEMO_TASK_HISTORY = {
+  "demo-1": [
+    { date: "2026-03-14", completedToday: false, valueCompleted: 3 },
+    { date: "2026-03-13", completedToday: true,  valueCompleted: 5 },
+    { date: "2026-03-12", completedToday: true,  valueCompleted: 5 },
+    { date: "2026-03-11", completedToday: false, valueCompleted: 2 },
+    { date: "2026-03-10", completedToday: true,  valueCompleted: 5 },
+    { date: "2026-03-09", completedToday: true,  valueCompleted: 5 },
+    { date: "2026-03-08", completedToday: false, valueCompleted: 4 },
+  ],
+  "demo-2": [
+    { date: "2026-03-15", completedToday: true,  valueCompleted: null },
+    { date: "2026-03-14", completedToday: true,  valueCompleted: null },
+    { date: "2026-03-13", completedToday: true,  valueCompleted: null },
+    { date: "2026-03-12", completedToday: false, valueCompleted: null },
+    { date: "2026-03-11", completedToday: true,  valueCompleted: null },
+    { date: "2026-03-10", completedToday: true,  valueCompleted: null },
+    { date: "2026-03-09", completedToday: false, valueCompleted: null },
+  ],
+  "demo-3": [
+    { date: "2026-03-15", completedToday: false, valueCompleted: 3 },
+    { date: "2026-03-14", completedToday: true,  valueCompleted: 8 },
+    { date: "2026-03-13", completedToday: false, valueCompleted: 5 },
+    { date: "2026-03-12", completedToday: true,  valueCompleted: 8 },
+    { date: "2026-03-11", completedToday: false, valueCompleted: 6 },
+    { date: "2026-03-10", completedToday: true,  valueCompleted: 8 },
+  ],
+  "demo-4": [
+    { date: "2026-03-10", completedToday: true,  valueCompleted: null },
+    { date: "2026-03-09", completedToday: true,  valueCompleted: null },
+    { date: "2026-03-08", completedToday: false, valueCompleted: null },
+  ],
+  "demo-5": [
+    { date: "2026-03-15", completedToday: true,  valueCompleted: 30 },
+    { date: "2026-03-14", completedToday: true,  valueCompleted: 30 },
+    { date: "2026-03-13", completedToday: false, valueCompleted: 20 },
+    { date: "2026-03-12", completedToday: true,  valueCompleted: 30 },
+    { date: "2026-03-11", completedToday: true,  valueCompleted: 30 },
+    { date: "2026-03-10", completedToday: false, valueCompleted: 15 },
+    { date: "2026-03-09", completedToday: true,  valueCompleted: 30 },
+  ],
+};
+
 export const DEMO_TODAY_TASKS = {
   inProgressToday: DEMO_TASKS.filter((t) => t.status === "ACTIVE" && !t.completedToday),
   completedToday: DEMO_TASKS.filter((t) => t.completedToday),
