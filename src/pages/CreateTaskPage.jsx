@@ -1,9 +1,16 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import DemoAuthModal from "../components/DemoAuthModal";
 
 export default function CreateTaskPage() {
   const navigate = useNavigate();
+  const { demoMode } = useAuth();
+
+  if (demoMode) {
+    return <DemoAuthModal onClose={() => navigate("/tasks")} />;
+  }
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

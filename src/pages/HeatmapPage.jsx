@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 import WeeklyHeatmap from "../components/heatmap/WeeklyHeatmap";
 import MonthlyHeatmap from "../components/heatmap/MonthlyHeatMap";
 import YearlyHeatmap from "../components/heatmap/YearlyHeatmap";
 import HeatmapChart from "../components/heatmap/HeatmapChart";
+import { DEMO_YEAR_DATA } from "../data/demoData";
 
 const TABS = ["week", "month", "year", "graph"];
 
@@ -25,6 +27,7 @@ function normalizeYearHeatmap(raw, year) {
 
 export default function HeatmapPage() {
   const now = new Date();
+  const { demoMode } = useAuth();
 
   const [activeTab, setActiveTab] = useState("week");
   const [graphMode, setGraphMode] = useState("week");
@@ -34,8 +37,13 @@ export default function HeatmapPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadHeatmap();
-  }, [year]);
+    if (demoMode) {
+      setHeatmapData(DEMO_YEAR_DATA);
+      setLoading(false);
+    } else {
+      loadHeatmap();
+    }
+  }, [year, demoMode]);
 
   async function loadHeatmap() {
     try {

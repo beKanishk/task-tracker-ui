@@ -1,9 +1,11 @@
 import { useState } from "react";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { enterDemo } = useAuth();
   const [form, setForm] = useState({ name: "", userName: "", email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -88,6 +90,17 @@ export default function Register() {
           <Link to="/login" className="text-green-400 hover:underline">
             Sign in
           </Link>
+        </p>
+
+        <p className="text-gray-500 text-xs mt-3 text-center">
+          Just browsing?{" "}
+          <button
+            type="button"
+            onClick={() => { enterDemo(); navigate("/dashboard"); }}
+            className="text-gray-400 hover:text-white underline"
+          >
+            Try the demo
+          </button>
         </p>
       </form>
     </div>

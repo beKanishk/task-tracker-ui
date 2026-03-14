@@ -25,8 +25,8 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
 
-    // Only logout on AUTH failures
-    if (status === 401 || status === 403) {
+    // Only logout on AUTH failures — skip if caller set suppressAuthRedirect
+    if ((status === 401 || status === 403) && !error.config?.suppressAuthRedirect) {
       console.warn("Auth error, redirecting to login");
 
       localStorage.removeItem("token");

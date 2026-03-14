@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 
 import MiniHeatmap from "../components/MiniHeatmap";
 import QuickLogModal from "../components/QuickLogModal";
@@ -9,8 +10,17 @@ import StreakCard from "../components/StreakCard";
 import ForgivenessBanner from "../components/ForgivenessBanner";
 import FatigueCard from "../components/FatigueCard";
 import FatigueWarning from "../components/FatigueWarning";
+import DemoAuthModal from "../components/DemoAuthModal";
 
 import { canLog } from "../utils/taskUtils";
+import {
+  DEMO_USER,
+  DEMO_SUMMARY,
+  DEMO_STREAK,
+  DEMO_FATIGUE,
+  DEMO_HEATMAP_7,
+  DEMO_TODAY_TASKS,
+} from "../data/demoData";
 
 /* ================= HELPERS ================= */
 
@@ -23,6 +33,8 @@ function daysBetween(dateA, dateB) {
 /* ================= COMPONENT ================= */
 
 export default function Dashboard() {
+  const { demoMode } = useAuth();
+
   const [user, setUser] = useState(null);
   const [summary, setSummary] = useState(null);
   const [streak, setStreak] = useState(null);
@@ -32,10 +44,28 @@ export default function Dashboard() {
   const [activeTask, setActiveTask] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fatigueLoading, setFatigueLoading] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   useEffect(() => {
-    loadDashboard();
-  }, []);
+    if (demoMode) {
+      loadDemoData();
+    } else {
+      loadDashboard();
+    }
+  }, [demoMode]);
+
+  function loadDemoData() {
+    setUser(DEMO_USER);
+    setSummary(DEMO_SUMMARY);
+    setStreak(DEMO_STREAK);
+    setFatigue(DEMO_FATIGUE);
+    setHeatmap(DEMO_HEATMAP_7);
+    setTodayTasks([
+      ...DEMO_TODAY_TASKS.inProgressToday,
+      ...DEMO_TODAY_TASKS.completedToday,
+    ]);
+    setLoading(false);
+  }
 
   async function loadDashboard() {
     try {
@@ -84,11 +114,13 @@ export default function Dashboard() {
   }
 
   async function refreshDashboard() {
+    if (demoMode) return;
     setLoading(true);
     await loadDashboard();
   }
 
   async function recomputeFatigue() {
+    if (demoMode) { setShowDemoModal(true); return; }
     try {
       setFatigueLoading(true);
       const res = await api.post("/api/fatigue/recompute");
@@ -101,6 +133,7 @@ export default function Dashboard() {
   }
 
   async function undoTask(task) {
+    if (demoMode) { setShowDemoModal(true); return; }
     try {
       await api.post("/api/progress/log", {
         taskId: task.id,
@@ -186,7 +219,7 @@ export default function Dashboard() {
         </div>
 
         <button
-          onClick={() => (window.location.href = "/tasks/new")}
+          onClick={() => demoMode ? setShowDemoModal(true) : (window.location.href = "/tasks/new")}
           className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg font-semibold"
         >
           + Add Task
@@ -230,6 +263,7 @@ export default function Dashboard() {
       <TodayTaskList
         tasks={todayTasks}
         onLog={(task) => {
+          if (demoMode) { setShowDemoModal(true); return; }
           if (!canLog(task)) return;
           setActiveTask(task);
         }}
@@ -250,6 +284,11 @@ export default function Dashboard() {
           onClose={() => setActiveTask(null)}
           onSuccess={refreshDashboard}
         />
+      )}
+
+      {/* ================= DEMO AUTH MODAL ================= */}
+      {showDemoModal && (
+        <DemoAuthModal onClose={() => setShowDemoModal(false)} />
       )}
     </div>
   );

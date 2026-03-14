@@ -1,14 +1,20 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
+import FeedbackModal from "../components/FeedbackModal";
 
 export default function AppLayout() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, demoMode, exitDemo, isAdmin } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   function handleLogout() {
-    logout();
+    if (demoMode) {
+      exitDemo();
+    } else {
+      logout();
+    }
     navigate("/login");
   }
 
@@ -76,23 +82,52 @@ export default function AppLayout() {
             >
               🔥 Heatmap
             </NavLink>
+
+            {isAdmin && (
+              <NavLink
+                to="/admin/feedback"
+                onClick={() => setSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `block px-3 py-2 rounded ${
+                    isActive ? "bg-gray-700" : "hover:bg-gray-700"
+                  }`
+                }
+              >
+                🛡️ Admin
+              </NavLink>
+            )}
           </nav>
         </div>
 
-        {/* LOGOUT */}
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-500 px-3 py-2 rounded font-semibold"
-        >
-          Logout
-        </button>
+        {/* BOTTOM ACTIONS */}
+        <div className="space-y-2">
+          {!demoMode && (
+            <button
+              onClick={() => setFeedbackOpen(true)}
+              className="w-full text-left px-3 py-2 rounded text-gray-400 hover:bg-gray-700 hover:text-white text-sm"
+            >
+              💬 Send Feedback
+            </button>
+          )}
+
+          <button
+            onClick={handleLogout}
+            className={`w-full px-3 py-2 rounded font-semibold ${
+              demoMode
+                ? "bg-gray-600 hover:bg-gray-500"
+                : "bg-red-600 hover:bg-red-500"
+            }`}
+          >
+            {demoMode ? "Exit Demo" : "Logout"}
+          </button>
+        </div>
       </aside>
 
       {/* MAIN CONTENT */}
       <main className="flex-1 overflow-y-auto p-4 md:p-6 w-full">
 
         {/* TOP BAR */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4">
 
           {/* MOBILE MENU BUTTON */}
           <button
@@ -101,17 +136,33 @@ export default function AppLayout() {
           >
             ☰
           </button>
-
-          {/* <button
-            onClick={() => navigate("/tasks/new")}
-            className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold"
-          >
-            + Add Task
-          </button> */}
         </div>
+
+        {/* DEMO BANNER */}
+        {demoMode && (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-sm px-4 py-3 rounded-lg mb-6 flex flex-wrap items-center justify-between gap-3">
+            <span>You're exploring a demo. Sign up to track your own habits.</span>
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={() => navigate("/register")}
+                className="bg-yellow-500 text-black px-3 py-1 rounded font-semibold text-xs hover:bg-yellow-400"
+              >
+                Sign up free
+              </button>
+              <button
+                onClick={() => navigate("/login")}
+                className="bg-gray-700 text-white px-3 py-1 rounded text-xs hover:bg-gray-600"
+              >
+                Sign in
+              </button>
+            </div>
+          </div>
+        )}
 
         <Outlet />
       </main>
+
+      {feedbackOpen && <FeedbackModal onClose={() => setFeedbackOpen(false)} />}
     </div>
   );
 }

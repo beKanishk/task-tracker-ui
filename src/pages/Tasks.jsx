@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 import EditTaskModal from "../components/EditTaskModal";
 import TaskHistoryModal from "../components/TaskHistoryModal";
+import DemoAuthModal from "../components/DemoAuthModal";
+import { DEMO_TASKS } from "../data/demoData";
 
 const STATUS_TABS = ["ALL", "ACTIVE", "PAUSED", "COMPLETED"];
 
 export default function Tasks() {
+  const { demoMode } = useAuth();
+
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -14,10 +19,16 @@ export default function Tasks() {
   const [historyTask, setHistoryTask] = useState(null);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [search, setSearch] = useState("");
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   useEffect(() => {
-    loadTasks();
-  }, []);
+    if (demoMode) {
+      setTasks(DEMO_TASKS);
+      setLoading(false);
+    } else {
+      loadTasks();
+    }
+  }, [demoMode]);
 
   const loadTasks = async () => {
     setLoading(true);
@@ -33,16 +44,19 @@ export default function Tasks() {
   };
 
   const deleteTask = async (taskId) => {
+    if (demoMode) { setShowDemoModal(true); return; }
     await api.delete(`/api/tasks/${taskId}`);
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
   };
 
   const pauseTask = async (taskId) => {
+    if (demoMode) { setShowDemoModal(true); return; }
     const res = await api.put(`/api/tasks/state/${taskId}/status?status=PAUSED`);
     setTasks((prev) => prev.map((t) => (t.id === taskId ? res.data : t)));
   };
 
   const resumeTask = async (taskId) => {
+    if (demoMode) { setShowDemoModal(true); return; }
     const res = await api.put(`/api/tasks/state/${taskId}/status?status=ACTIVE`);
     setTasks((prev) => prev.map((t) => (t.id === taskId ? res.data : t)));
   };
@@ -57,12 +71,21 @@ export default function Tasks() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Your Tasks</h2>
-        <Link
-          to="/tasks/new"
-          className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold text-sm"
-        >
-          + New Task
-        </Link>
+        {demoMode ? (
+          <button
+            onClick={() => setShowDemoModal(true)}
+            className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold text-sm"
+          >
+            + New Task
+          </button>
+        ) : (
+          <Link
+            to="/tasks/new"
+            className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold text-sm"
+          >
+            + New Task
+          </Link>
+        )}
       </div>
 
       {/* SEARCH */}
@@ -148,7 +171,7 @@ export default function Tasks() {
               </button>
 
               <button
-                onClick={() => setEditingTask(task)}
+                onClick={() => demoMode ? setShowDemoModal(true) : setEditingTask(task)}
                 className="text-blue-400 hover:underline"
               >
                 Edit
@@ -198,6 +221,11 @@ export default function Tasks() {
           task={historyTask}
           onClose={() => setHistoryTask(null)}
         />
+      )}
+
+      {/* DEMO AUTH MODAL */}
+      {showDemoModal && (
+        <DemoAuthModal onClose={() => setShowDemoModal(false)} />
       )}
     </div>
   );

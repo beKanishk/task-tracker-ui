@@ -7,7 +7,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { login, enterDemo } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const expired = searchParams.get("expired") === "true";
@@ -57,6 +57,20 @@ export default function Login() {
 
         <button className="w-full bg-green-500 hover:bg-green-600 p-2 rounded font-bold">
           Login
+        </button>
+
+        <div className="flex items-center gap-3 my-4">
+          <hr className="flex-1 border-gray-600" />
+          <span className="text-gray-500 text-xs">or</span>
+          <hr className="flex-1 border-gray-600" />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => { enterDemo(); navigate("/dashboard"); }}
+          className="w-full bg-gray-700 hover:bg-gray-600 p-2 rounded font-bold text-gray-200"
+        >
+          Try Demo
         </button>
 
         <p className="text-gray-400 text-sm mt-5 text-center">
