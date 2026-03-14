@@ -7,6 +7,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { login, enterDemo } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -15,13 +16,15 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     localStorage.removeItem("token");
-
+    setSubmitting(true);
     try {
       const res = await api.post("/auth/token", { username: username.trim(), password });
       login(res.data);
       navigate("/dashboard");
     } catch (err) {
       setError("Invalid credentials");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -57,8 +60,12 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="w-full bg-green-500 hover:bg-green-600 p-2 rounded font-bold">
-          Login
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full bg-green-500 hover:bg-green-600 p-2 rounded font-bold disabled:opacity-50"
+        >
+          {submitting ? "Signing in…" : "Login"}
         </button>
 
         <div className="flex items-center gap-3 my-4">
