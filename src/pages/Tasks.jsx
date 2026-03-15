@@ -155,7 +155,7 @@ export default function Tasks() {
         {filtered.map((task, index) => (
           <BlurFade key={task.id} delay={0.05 * index}>
             <div
-              className={`bg-surface-card p-4 rounded-xl border flex justify-between items-center shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 ${
+              className={`bg-surface-card p-4 rounded-xl border shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 ${
                 task.status === "PAUSED"
                   ? "border-amber-500/40 opacity-80"
                   : task.status === "COMPLETED"
@@ -164,7 +164,7 @@ export default function Tasks() {
               }`}
             >
               {/* LEFT */}
-              <div>
+              <div className="mb-2">
                 <p className="font-semibold text-white">{task.title}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
                   {task.taskType} • {task.status}
@@ -172,7 +172,7 @@ export default function Tasks() {
               </div>
 
               {/* ACTIONS */}
-              <div className="flex items-center gap-4 text-xs font-medium">
+              <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs font-medium">
                 <button
                   onClick={() => setHistoryTask(task)}
                   className="text-gray-500 hover:text-slate-200 transition-colors"
