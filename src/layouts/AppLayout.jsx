@@ -2,7 +2,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import FeedbackModal from "../components/FeedbackModal";
-import { LayoutDashboard, CheckSquare, Activity, ShieldCheck, MessageSquare, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, CheckSquare, Activity, ShieldCheck, MessageSquare, LogOut, Menu, Bell } from "lucide-react";
 import { AnimatedGradientText } from "../components/magicui/animated-gradient-text";
 
 export default function AppLayout() {
@@ -72,6 +72,11 @@ export default function AppLayout() {
             <NavLink to="/heatmap" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
               <Activity size={16} className="shrink-0" />
               <span>Heatmap</span>
+            </NavLink>
+
+            <NavLink to="/settings" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
+              <Bell size={16} className="shrink-0" />
+              <span>Settings</span>
             </NavLink>
 
             {isAdmin && !demoMode && (
