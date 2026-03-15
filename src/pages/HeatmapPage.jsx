@@ -6,6 +6,7 @@ import MonthlyHeatmap from "../components/heatmap/MonthlyHeatMap";
 import YearlyHeatmap from "../components/heatmap/YearlyHeatmap";
 import HeatmapChart from "../components/heatmap/HeatmapChart";
 import { DEMO_YEAR_DATA } from "../data/demoData";
+import { BlurFade } from "../components/magicui/blur-fade";
 
 const TABS = ["week", "month", "year", "graph"];
 
@@ -24,6 +25,8 @@ function normalizeYearHeatmap(raw, year) {
     activity: map.get(i + 1)?.activity ?? generateEmptyMonth(year, i + 1),
   }));
 }
+
+const selectClass = "bg-surface-input border border-surface-border rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-green-500/60 focus:ring-2 focus:ring-green-500/20 transition-all";
 
 export default function HeatmapPage() {
   const now = new Date();
@@ -57,96 +60,105 @@ export default function HeatmapPage() {
   }
 
   if (loading) {
-    return <div className="p-6 text-gray-400">Loading heatmap…</div>;
+    return <div className="p-6 text-gray-400 animate-pulse">Loading heatmap…</div>;
   }
 
   return (
     <div className="p-3 sm:p-6 text-white space-y-6">
+
       {/* HEADER */}
-      <div>
-        <h1 className="text-2xl font-bold">🔥 Activity Heatmap</h1>
-        <p className="text-gray-400">Visualize your consistency over time</p>
-      </div>
+      <BlurFade delay={0.05}>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">🔥 Activity Heatmap</h1>
+          <p className="text-gray-400 text-sm mt-1">Visualize your consistency over time</p>
+        </div>
+      </BlurFade>
 
       {/* TABS */}
-      <div className="flex flex-wrap gap-2">
-        {TABS.map(t => (
-          <button
-            key={t}
-            onClick={() => {
-              setActiveTab(t);
-              if (t === "graph") setGraphMode("week");
-            }}
-            className={`px-4 py-2 rounded-lg font-semibold text-sm
-              ${activeTab === t
-                ? "bg-green-600 text-white"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700"}
-            `}
-          >
-            {t.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      <BlurFade delay={0.1}>
+        <div className="flex flex-wrap gap-2">
+          {TABS.map(t => (
+            <button
+              key={t}
+              onClick={() => {
+                setActiveTab(t);
+                if (t === "graph") setGraphMode("week");
+              }}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-150 ${
+                activeTab === t
+                  ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow-glow-green"
+                  : "bg-surface-elevated border border-surface-border text-gray-400 hover:text-white hover:bg-surface-hover"
+              }`}
+            >
+              {t.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </BlurFade>
 
       {/* GRAPH FILTERS */}
       {activeTab === "graph" && (
-        <div className="flex flex-wrap gap-3 items-center">
-          <select
-            value={year}
-            onChange={e => setYear(Number(e.target.value))}
-            className="bg-gray-800 px-3 py-2 rounded"
-          >
-            {[2024, 2025, 2026].map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-
-          {graphMode !== "year" && (
+        <BlurFade delay={0.12}>
+          <div className="flex flex-wrap gap-3 items-center">
             <select
-              value={month}
-              onChange={e => setMonth(Number(e.target.value))}
-              className="bg-gray-800 px-3 py-2 rounded"
+              value={year}
+              onChange={e => setYear(Number(e.target.value))}
+              className={selectClass}
             >
-              {Array.from({ length: 12 }).map((_, i) => (
-                <option key={i} value={i + 1}>
-                  {new Date(0, i).toLocaleString("en", { month: "long" })}
-                </option>
+              {[2024, 2025, 2026].map(y => (
+                <option key={y} value={y}>{y}</option>
               ))}
             </select>
-          )}
 
-          <div className="flex gap-2">
-            {["week", "month", "year"].map(m => (
-              <button
-                key={m}
-                onClick={() => setGraphMode(m)}
-                className={`px-3 py-1 rounded text-sm font-semibold
-                  ${graphMode === m
-                    ? "bg-green-600"
-                    : "bg-gray-700 text-gray-300"}
-                `}
+            {graphMode !== "year" && (
+              <select
+                value={month}
+                onChange={e => setMonth(Number(e.target.value))}
+                className={selectClass}
               >
-                {m.toUpperCase()}
-              </button>
-            ))}
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <option key={i} value={i + 1}>
+                    {new Date(0, i).toLocaleString("en", { month: "long" })}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <div className="flex gap-2">
+              {["week", "month", "year"].map(m => (
+                <button
+                  key={m}
+                  onClick={() => setGraphMode(m)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-150 ${
+                    graphMode === m
+                      ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white"
+                      : "bg-surface-elevated border border-surface-border text-gray-400 hover:text-white hover:bg-surface-hover"
+                  }`}
+                >
+                  {m.toUpperCase()}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        </BlurFade>
       )}
 
       {/* CONTENT */}
-      <div className="bg-gray-900 rounded-xl p-3 sm:p-6 border border-gray-800">
-        {activeTab === "week" && <WeeklyHeatmap yearData={heatmapData} />}
-        {activeTab === "month" && <MonthlyHeatmap yearData={heatmapData} />}
-        {activeTab === "year" && <YearlyHeatmap yearData={heatmapData} />}
-        {activeTab === "graph" && (
-          <HeatmapChart
-            yearData={heatmapData}
-            mode={graphMode}
-            year={year}
-            month={month}
-          />
-        )}
-      </div>
+      <BlurFade delay={0.15}>
+        <div className="bg-surface-card rounded-xl p-3 sm:p-6 border border-surface-border shadow-card">
+          {activeTab === "week" && <WeeklyHeatmap yearData={heatmapData} />}
+          {activeTab === "month" && <MonthlyHeatmap yearData={heatmapData} />}
+          {activeTab === "year" && <YearlyHeatmap yearData={heatmapData} />}
+          {activeTab === "graph" && (
+            <HeatmapChart
+              yearData={heatmapData}
+              mode={graphMode}
+              year={year}
+              month={month}
+            />
+          )}
+        </div>
+      </BlurFade>
     </div>
   );
 }

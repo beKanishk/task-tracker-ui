@@ -1,72 +1,78 @@
 import { canLog } from "../utils/taskUtils";
+import { MagicCard } from "./magicui/magic-card";
+import { ShimmerButton } from "./magicui/shimmer-button";
 
 export default function TaskCard({ task, onLog, onUndo }) {
   const logAllowed = canLog(task);
 
   return (
-    <div
-      className={`bg-gray-800 p-4 rounded-xl border transition
-        ${!logAllowed ? "opacity-70 border-green-500/40" : "border-gray-700"}
-      `}
+    <MagicCard
+      gradientColor="#22c55e18"
+      className={`rounded-xl border transition-all duration-200 shadow-card hover:shadow-card-hover hover:-translate-y-0.5 ${
+        !logAllowed ? "opacity-80 border-emerald-500/35" : "border-surface-border"
+      }`}
     >
-      <div className="flex justify-between items-start gap-4">
-        {/* LEFT CONTENT */}
-        <div className="flex-1">
-          {/* TITLE */}
-          <p className="font-semibold text-white">{task.title}</p>
+      <div className="p-4">
+        <div className="flex justify-between items-start gap-4">
+          {/* LEFT CONTENT */}
+          <div className="flex-1">
+            {/* TITLE */}
+            <p className="font-semibold text-white">{task.title}</p>
 
-          {/* DESCRIPTION */}
-          {task.description && (
-            <p className="text-sm text-gray-400 mt-1">
-              {task.description}
-            </p>
-          )}
+            {/* DESCRIPTION */}
+            {task.description && (
+              <p className="text-sm text-gray-400 mt-1">
+                {task.description}
+              </p>
+            )}
 
-          {/* BOOLEAN STATUS */}
-          {task.taskType === "BOOLEAN" && task.completedToday && (
-            <p className="text-sm text-green-400 mt-2">
-              ✔ Completed today
-            </p>
-          )}
+            {/* BOOLEAN STATUS */}
+            {task.taskType === "BOOLEAN" && task.completedToday && (
+              <p className="text-xs text-emerald-400 mt-2 font-medium">
+                ✔ Completed today
+              </p>
+            )}
 
-          {/* QUANTITATIVE DETAILS */}
-          {task.taskType === "QUANTITATIVE" && (
-            <p className="text-sm text-gray-400 mt-2">
-              Progress:{" "}
-              <span className="text-white font-medium">
-                {task.progressPercent ?? 0}%
-              </span>
+            {/* QUANTITATIVE DETAILS */}
+            {task.taskType === "QUANTITATIVE" && (
+              <p className="text-xs text-gray-500 mt-2">
+                Progress:{" "}
+                <span className="text-gray-300 font-medium">
+                  {task.progressPercent ?? 0}%
+                </span>
 
-              {task.target && (
-                <>
-                  {" "}
-                  • Target:{" "}
-                  <span className="text-white font-medium">
-                    {task.target} {task.unit ?? ""}
-                  </span>
-                </>
-              )}
-            </p>
+                {task.target && (
+                  <>
+                    {" "}
+                    • Target:{" "}
+                    <span className="text-gray-300 font-medium">
+                      {task.target} {task.unit ?? ""}
+                    </span>
+                  </>
+                )}
+              </p>
+            )}
+          </div>
+
+          {/* ACTION */}
+          {logAllowed ? (
+            <ShimmerButton
+              onClick={() => onLog(task)}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0"
+              shimmerDuration="2s"
+            >
+              Log
+            </ShimmerButton>
+          ) : (
+            <button
+              disabled
+              className="bg-surface-elevated border border-surface-border cursor-not-allowed px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 opacity-60 shrink-0"
+            >
+              Logged
+            </button>
           )}
         </div>
-
-        {/* ACTION */}
-        {logAllowed ? (
-          <button
-            onClick={() => onLog(task)}
-            className="bg-green-600 hover:bg-green-500 px-3 py-1 rounded text-sm font-semibold"
-          >
-            Log
-          </button>
-        ) : (
-          <button
-            disabled
-            className="bg-gray-600 cursor-not-allowed px-3 py-1 rounded text-sm opacity-50"
-          >
-            Logged
-          </button>
-        )}
       </div>
-    </div>
+    </MagicCard>
   );
 }

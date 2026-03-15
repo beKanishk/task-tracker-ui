@@ -1,21 +1,24 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import { MagicCard } from "../components/magicui/magic-card";
+import { NumberTicker } from "../components/magicui/number-ticker";
+import { BlurFade } from "../components/magicui/blur-fade";
 
 const TABS = ["Overview", "Users", "Feedback"];
 
 const FEEDBACK_FILTERS = ["ALL", "GENERAL", "BUG", "FEATURE"];
 
 const FEEDBACK_TYPE_STYLES = {
-  BUG: "bg-red-500/20 text-red-400 border-red-500/30",
+  BUG:     "bg-red-500/20 text-red-400 border-red-500/30",
   FEATURE: "bg-blue-500/20 text-blue-400 border-blue-500/30",
   GENERAL: "bg-gray-500/20 text-gray-400 border-gray-500/30",
 };
 
 const FATIGUE_COLORS = {
-  NONE: "text-green-400",
-  LOW: "text-yellow-400",
-  MEDIUM: "text-orange-400",
-  HIGH: "text-red-400",
+  NONE:  "text-green-400",
+  LOW:   "text-yellow-400",
+  MEDIUM:"text-orange-400",
+  HIGH:  "text-red-400",
   "N/A": "text-gray-500",
 };
 
@@ -31,11 +34,16 @@ function formatDateTime(val) {
 
 function StatCard({ label, value, sub }) {
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-      <p className="text-gray-400 text-xs mb-1">{label}</p>
-      <p className="text-2xl font-bold text-white">{value ?? "—"}</p>
-      {sub && <p className="text-gray-500 text-xs mt-1">{sub}</p>}
-    </div>
+    <MagicCard
+      gradientColor="#22c55e11"
+      className="bg-surface-card border border-surface-border rounded-xl p-4 shadow-card hover:shadow-card-hover transition-all duration-200"
+    >
+      <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">{label}</p>
+      <p className="text-2xl font-bold text-white tabular-nums">
+        {typeof value === "number" ? <NumberTicker value={value} /> : (value ?? "—")}
+      </p>
+      {sub && <p className="text-gray-600 text-xs mt-1">{sub}</p>}
+    </MagicCard>
   );
 }
 
@@ -59,33 +67,39 @@ function OverviewTab() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Users</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <StatCard label="Total Users" value={stats.totalUsers} />
-          <StatCard label="New Today" value={stats.newUsersToday} />
-          <StatCard label="Logged In Today" value={stats.loggedInToday} />
-          <StatCard label="Active Today" value={stats.activeToday} sub="logged task progress" />
-          <StatCard label="Active This Week" value={stats.activeThisWeek} sub="last 7 days" />
+      <BlurFade delay={0.05}>
+        <div>
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Users</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <StatCard label="Total Users" value={stats.totalUsers} />
+            <StatCard label="New Today" value={stats.newUsersToday} />
+            <StatCard label="Logged In Today" value={stats.loggedInToday} />
+            <StatCard label="Active Today" value={stats.activeToday} sub="logged task progress" />
+            <StatCard label="Active This Week" value={stats.activeThisWeek} sub="last 7 days" />
+          </div>
         </div>
-      </div>
+      </BlurFade>
 
-      <div>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Tasks</h2>
-        <div className="grid grid-cols-2 gap-3 max-w-xs">
-          <StatCard label="Total Tasks" value={stats.totalTasks} />
-          <StatCard label="Created Today" value={stats.tasksCreatedToday} />
+      <BlurFade delay={0.1}>
+        <div>
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Tasks</h2>
+          <div className="grid grid-cols-2 gap-3 max-w-xs">
+            <StatCard label="Total Tasks" value={stats.totalTasks} />
+            <StatCard label="Created Today" value={stats.tasksCreatedToday} />
+          </div>
         </div>
-      </div>
+      </BlurFade>
 
-      <div>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Feedback</h2>
-        <div className="grid grid-cols-3 gap-3 max-w-sm">
-          <StatCard label="General" value={feedback.GENERAL ?? 0} />
-          <StatCard label="Bug Reports" value={feedback.BUG ?? 0} />
-          <StatCard label="Feature Requests" value={feedback.FEATURE ?? 0} />
+      <BlurFade delay={0.15}>
+        <div>
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Feedback</h2>
+          <div className="grid grid-cols-3 gap-3 max-w-sm">
+            <StatCard label="General" value={feedback.GENERAL ?? 0} />
+            <StatCard label="Bug Reports" value={feedback.BUG ?? 0} />
+            <StatCard label="Feature Requests" value={feedback.FEATURE ?? 0} />
+          </div>
         </div>
-      </div>
+      </BlurFade>
     </div>
   );
 }
@@ -117,7 +131,7 @@ function UsersTab() {
   return (
     <div>
       <input
-        className="w-full max-w-sm p-2 mb-4 rounded bg-gray-700 text-sm placeholder-gray-500 border border-transparent focus:border-green-600 outline-none"
+        className="w-full max-w-sm px-3 py-2.5 mb-4 rounded-lg bg-surface-input border border-surface-border text-sm placeholder-gray-600 focus:outline-none focus:border-green-500/60 focus:ring-2 focus:ring-green-500/20 transition-all"
         placeholder="Search by name, username, or email…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -129,7 +143,7 @@ function UsersTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
-              <tr className="text-gray-400 border-b border-gray-700 text-xs uppercase">
+              <tr className="text-gray-500 border-b border-surface-border text-xs uppercase tracking-wider">
                 <th className="pb-2 pr-4">Name</th>
                 <th className="pb-2 pr-4">Username</th>
                 <th className="pb-2 pr-4">Email</th>
@@ -144,8 +158,8 @@ function UsersTab() {
             </thead>
             <tbody>
               {filtered.map((u) => (
-                <tr key={u.userId} className="border-b border-gray-800 hover:bg-gray-800/50">
-                  <td className="py-2 pr-4 font-medium">{u.name || "—"}</td>
+                <tr key={u.userId} className="border-b border-surface-border/50 hover:bg-surface-elevated/60 transition-colors">
+                  <td className="py-2 pr-4 font-medium text-white">{u.name || "—"}</td>
                   <td className="py-2 pr-4 text-gray-300">{u.username}</td>
                   <td className="py-2 pr-4 text-gray-400">{u.email || "—"}</td>
                   <td className="py-2 pr-4">
@@ -201,15 +215,15 @@ function FeedbackTab() {
 
   return (
     <div>
-      <div className="flex gap-2 mb-5">
+      <div className="flex gap-2 mb-5 flex-wrap">
         {FEEDBACK_FILTERS.map((f) => (
           <button
             key={f}
             onClick={() => setTypeFilter(f)}
-            className={`px-3 py-1.5 rounded text-xs font-semibold border transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
               typeFilter === f
-                ? "bg-green-600 border-green-600 text-white"
-                : "bg-transparent border-gray-600 text-gray-400 hover:border-gray-400"
+                ? "bg-gradient-to-r from-green-600 to-emerald-500 border-transparent text-white shadow-glow-green"
+                : "bg-surface-elevated border-surface-border text-gray-400 hover:text-white hover:bg-surface-hover"
             }`}
           >
             {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
@@ -225,26 +239,28 @@ function FeedbackTab() {
       )}
 
       <div className="space-y-3">
-        {filtered.map((fb) => (
-          <div key={fb.id} className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span
-                className={`text-xs font-semibold px-2 py-0.5 rounded border ${
-                  FEEDBACK_TYPE_STYLES[fb.type] ?? FEEDBACK_TYPE_STYLES.GENERAL
-                }`}
-              >
-                {fb.type}
-              </span>
-              <span className="text-xs text-gray-500">
-                {new Date(fb.createdAt).toLocaleString(undefined, {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-              </span>
+        {filtered.map((fb, index) => (
+          <BlurFade key={fb.id} delay={0.04 * index}>
+            <div className="bg-surface-card border border-surface-border rounded-xl p-4 shadow-card">
+              <div className="flex items-center justify-between mb-2">
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 rounded border ${
+                    FEEDBACK_TYPE_STYLES[fb.type] ?? FEEDBACK_TYPE_STYLES.GENERAL
+                  }`}
+                >
+                  {fb.type}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {new Date(fb.createdAt).toLocaleString(undefined, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </span>
+              </div>
+              <p className="text-sm text-gray-100 whitespace-pre-wrap break-words mb-2">{fb.message}</p>
+              <p className="text-xs text-gray-600">User: {fb.userId}</p>
             </div>
-            <p className="text-sm text-gray-100 whitespace-pre-wrap break-words mb-2">{fb.message}</p>
-            <p className="text-xs text-gray-600">User: {fb.userId}</p>
-          </div>
+          </BlurFade>
         ))}
       </div>
     </div>
@@ -256,19 +272,21 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("Overview");
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">🛡️ Admin Panel</h1>
+    <div className="max-w-6xl mx-auto p-4 md:p-6">
+      <BlurFade delay={0.05}>
+        <h1 className="text-2xl font-bold tracking-tight mb-6">Admin Panel</h1>
+      </BlurFade>
 
       {/* Tab bar */}
-      <div className="flex gap-1 mb-6 border-b border-gray-700">
+      <div className="flex gap-1 mb-6 border-b border-surface-border">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-sm font-semibold transition-colors border-b-2 -mb-px ${
               activeTab === tab
-                ? "border-green-500 text-green-400"
-                : "border-transparent text-gray-400 hover:text-white"
+                ? "border-emerald-500 text-emerald-400"
+                : "border-transparent text-gray-500 hover:text-slate-200"
             }`}
           >
             {tab}

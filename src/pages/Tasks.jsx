@@ -6,6 +6,8 @@ import EditTaskModal from "../components/EditTaskModal";
 import TaskHistoryModal from "../components/TaskHistoryModal";
 import DemoAuthModal from "../components/DemoAuthModal";
 import { DEMO_TASKS } from "../data/demoData";
+import { BlurFade } from "../components/magicui/blur-fade";
+import { ShimmerButton } from "../components/magicui/shimmer-button";
 
 const STATUS_TABS = ["ALL", "ACTIVE", "PAUSED", "COMPLETED"];
 
@@ -61,6 +63,12 @@ export default function Tasks() {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? res.data : t)));
   };
 
+  const completeTask = async (taskId) => {
+    if (demoMode) { setShowDemoModal(true); return; }
+    const res = await api.put(`/api/tasks/state/${taskId}/status?status=COMPLETED`);
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? res.data : t)));
+  };
+
   const filtered = tasks.filter((t) => {
     const matchesStatus = statusFilter === "ALL" || t.status === statusFilter;
     const matchesSearch = t.title.toLowerCase().includes(search.toLowerCase());
@@ -68,50 +76,53 @@ export default function Tasks() {
   });
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Your Tasks</h2>
-        {demoMode ? (
-          <button
-            onClick={() => setShowDemoModal(true)}
-            className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold text-sm"
-          >
-            + New Task
-          </button>
-        ) : (
-          <Link
-            to="/tasks/new"
-            className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded font-semibold text-sm"
-          >
-            + New Task
-          </Link>
-        )}
-      </div>
+    <div className="p-4 md:p-6">
+      <BlurFade delay={0.05}>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold tracking-tight">Your Tasks</h2>
+          {demoMode ? (
+            <ShimmerButton
+              onClick={() => setShowDemoModal(true)}
+              className="px-4 py-2 rounded-lg text-sm font-semibold"
+            >
+              + New Task
+            </ShimmerButton>
+          ) : (
+            <Link to="/tasks/new">
+              <ShimmerButton className="px-4 py-2 rounded-lg text-sm font-semibold">
+                + New Task
+              </ShimmerButton>
+            </Link>
+          )}
+        </div>
+      </BlurFade>
 
-      {/* SEARCH */}
-      <input
-        className="w-full p-2 mb-4 bg-gray-800 border border-gray-700 rounded text-sm placeholder-gray-500"
-        placeholder="Search tasks…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <BlurFade delay={0.1}>
+        {/* SEARCH */}
+        <input
+          className="w-full px-3 py-2.5 mb-4 bg-surface-input border border-surface-border rounded-lg text-sm placeholder-gray-600 focus:outline-none focus:border-green-500/60 focus:ring-2 focus:ring-green-500/20 transition-all duration-150"
+          placeholder="Search tasks…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-      {/* STATUS FILTER TABS */}
-      <div className="flex gap-2 mb-5">
-        {STATUS_TABS.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setStatusFilter(tab)}
-            className={`px-3 py-1 rounded text-sm font-medium ${
-              statusFilter === tab
-                ? "bg-green-600 text-white"
-                : "bg-gray-700 text-gray-400 hover:text-white"
-            }`}
-          >
-            {tab.charAt(0) + tab.slice(1).toLowerCase()}
-          </button>
-        ))}
-      </div>
+        {/* STATUS FILTER TABS */}
+        <div className="flex gap-2 mb-5 flex-wrap">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setStatusFilter(tab)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                statusFilter === tab
+                  ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow-glow-green"
+                  : "bg-surface-elevated border border-surface-border text-gray-400 hover:text-white hover:bg-surface-hover"
+              }`}
+            >
+              {tab.charAt(0) + tab.slice(1).toLowerCase()}
+            </button>
+          ))}
+        </div>
+      </BlurFade>
 
       {/* STATES */}
       {loading && (
@@ -119,7 +130,7 @@ export default function Tasks() {
       )}
 
       {!loading && error && (
-        <div className="bg-red-900/30 border border-red-700 text-red-400 rounded p-3 text-sm">
+        <div className="bg-red-500/8 border border-red-500/30 text-red-400 rounded-xl p-3 text-sm">
           {error}
         </div>
       )}
@@ -127,11 +138,10 @@ export default function Tasks() {
       {!loading && !error && tasks.length === 0 && (
         <div className="text-center py-16 text-gray-500">
           <p className="text-lg mb-3">No tasks yet</p>
-          <Link
-            to="/tasks/new"
-            className="bg-green-600 hover:bg-green-500 px-5 py-2 rounded font-semibold text-sm text-white"
-          >
-            Create your first task
+          <Link to="/tasks/new">
+            <ShimmerButton className="px-5 py-2 rounded-lg text-sm font-semibold">
+              Create your first task
+            </ShimmerButton>
           </Link>
         </div>
       )}
@@ -142,67 +152,79 @@ export default function Tasks() {
 
       {/* TASK LIST */}
       <div className="space-y-3">
-        {filtered.map((task) => (
-          <div
-            key={task.id}
-            className={`bg-gray-800 p-4 rounded-xl border flex justify-between items-center ${
-              task.status === "PAUSED"
-                ? "border-yellow-500/40 opacity-80"
-                : task.status === "COMPLETED"
-                ? "border-green-700/40 opacity-70"
-                : "border-gray-700"
-            }`}
-          >
-            {/* LEFT */}
-            <div>
-              <p className="font-semibold">{task.title}</p>
-              <p className="text-sm text-gray-400">
-                {task.taskType} • {task.status}
-              </p>
-            </div>
+        {filtered.map((task, index) => (
+          <BlurFade key={task.id} delay={0.05 * index}>
+            <div
+              className={`bg-surface-card p-4 rounded-xl border flex justify-between items-center shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 ${
+                task.status === "PAUSED"
+                  ? "border-amber-500/40 opacity-80"
+                  : task.status === "COMPLETED"
+                  ? "border-emerald-600/40 opacity-70"
+                  : "border-surface-border"
+              }`}
+            >
+              {/* LEFT */}
+              <div>
+                <p className="font-semibold text-white">{task.title}</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {task.taskType} • {task.status}
+                </p>
+              </div>
 
-            {/* ACTIONS */}
-            <div className="flex items-center gap-4 text-sm">
-              <button
-                onClick={() => setHistoryTask(task)}
-                className="text-gray-400 hover:text-white"
-              >
-                History
-              </button>
-
-              <button
-                onClick={() => demoMode ? setShowDemoModal(true) : setEditingTask(task)}
-                className="text-blue-400 hover:underline"
-              >
-                Edit
-              </button>
-
-              {task.status === "ACTIVE" && (
+              {/* ACTIONS */}
+              <div className="flex items-center gap-4 text-xs font-medium">
                 <button
-                  onClick={() => pauseTask(task.id)}
-                  className="text-yellow-400 hover:underline"
+                  onClick={() => setHistoryTask(task)}
+                  className="text-gray-500 hover:text-slate-200 transition-colors"
                 >
-                  Pause
+                  History
                 </button>
-              )}
 
-              {task.status === "PAUSED" && (
+                {task.status !== "COMPLETED" && (
+                  <button
+                    onClick={() => demoMode ? setShowDemoModal(true) : setEditingTask(task)}
+                    className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    Edit
+                  </button>
+                )}
+
+                {task.status === "ACTIVE" && (
+                  <button
+                    onClick={() => pauseTask(task.id)}
+                    className="text-amber-400 hover:text-amber-300 transition-colors"
+                  >
+                    Pause
+                  </button>
+                )}
+
+                {task.status === "PAUSED" && (
+                  <button
+                    onClick={() => resumeTask(task.id)}
+                    className="text-green-400 hover:text-green-300 transition-colors"
+                  >
+                    Resume
+                  </button>
+                )}
+
+                {task.status !== "COMPLETED" && (
+                  <button
+                    onClick={() => completeTask(task.id)}
+                    className="text-emerald-400 hover:text-emerald-300 transition-colors"
+                  >
+                    Complete
+                  </button>
+                )}
+
                 <button
-                  onClick={() => resumeTask(task.id)}
-                  className="text-green-400 hover:underline"
+                  onClick={() => deleteTask(task.id)}
+                  className="text-red-500/80 hover:text-red-400 transition-colors"
                 >
-                  Resume
+                  Delete
                 </button>
-              )}
-
-              <button
-                onClick={() => deleteTask(task.id)}
-                className="text-red-400 hover:underline"
-              >
-                Delete
-              </button>
+              </div>
             </div>
-          </div>
+          </BlurFade>
         ))}
       </div>
 

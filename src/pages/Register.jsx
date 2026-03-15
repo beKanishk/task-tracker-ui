@@ -2,6 +2,13 @@ import { useState } from "react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { Meteors } from "../components/magicui/meteors";
+import { DotPattern } from "../components/magicui/dot-pattern";
+import { SparklesText } from "../components/magicui/sparkles-text";
+import { ShimmerButton } from "../components/magicui/shimmer-button";
+import { BorderBeam } from "../components/magicui/border-beam";
+import { BlurFade } from "../components/magicui/blur-fade";
+import { AnimatedShinyText } from "../components/magicui/animated-shiny-text";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -49,67 +56,95 @@ export default function Register() {
 
   const MAX_LENGTHS = { name: 50, userName: 50, email: 100, password: 100 };
 
-  const field = (label, key, type = "text", placeholder = "") => (
-    <div className="mb-4">
-      <label className="block text-sm text-gray-400 mb-1">{label}</label>
-      <input
-        type={type}
-        maxLength={MAX_LENGTHS[key]}
-        className={`w-full p-2 rounded bg-gray-700 text-white border ${
-          errors[key] ? "border-red-500" : "border-transparent"
-        }`}
-        placeholder={placeholder}
-        value={form[key]}
-        onChange={set(key)}
-      />
-      {errors[key] && <p className="text-red-400 text-xs mt-1">{errors[key]}</p>}
-    </div>
+  const field = (label, key, type = "text", placeholder = "", delay = 0.1) => (
+    <BlurFade delay={delay}>
+      <div className="mb-4">
+        <label className="block text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">{label}</label>
+        <input
+          type={type}
+          maxLength={MAX_LENGTHS[key]}
+          className={`w-full px-3 py-2.5 rounded-lg bg-surface-input border text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all duration-150 [&:-webkit-autofill]:![box-shadow:0_0_0_1000px_#0f0f1a_inset] [&:-webkit-autofill]:![-webkit-text-fill-color:#f1f5f9] ${
+            errors[key] ? "border-red-500" : "border-surface-border focus:border-green-500/60"
+          }`}
+          placeholder={placeholder}
+          value={form[key]}
+          onChange={set(key)}
+        />
+        {errors[key] && <p className="text-red-400 text-xs mt-1">{errors[key]}</p>}
+      </div>
+    </BlurFade>
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <form onSubmit={handleSubmit} className="bg-gray-800 p-8 rounded-lg w-96">
-        <h2 className="text-2xl font-bold text-white mb-6">Create Account</h2>
+    <div className="min-h-screen flex items-center justify-center bg-surface-base bg-gradient-auth-bg relative overflow-hidden px-4 py-8">
+      <Meteors number={18} />
 
-        {success && (
-          <p className="text-green-400 mb-4 text-sm">
-            Account created! Redirecting to login…
-          </p>
-        )}
-        {errors.general && (
-          <p className="text-red-400 mb-4 text-sm">{errors.general}</p>
-        )}
+      <form
+        onSubmit={handleSubmit}
+        className="relative z-10 bg-surface-card border border-surface-border rounded-2xl p-8 w-full max-w-sm shadow-modal overflow-hidden"
+      >
+        <DotPattern className="opacity-[0.04]" />
+        <BorderBeam size={300} duration={12} colorFrom="#6366f1" colorTo="#22c55e" />
 
-        {field("Full Name", "name", "text", "e.g. John Doe")}
-        {field("Username", "userName", "text", "e.g. johndoe")}
-        {field("Email (optional)", "email", "email", "e.g. john@example.com")}
-        {field("Password", "password", "password", "Min 6 characters")}
+        <div className="relative z-10">
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-green-500 hover:bg-green-600 p-2 rounded font-bold disabled:opacity-50 mt-2"
-        >
-          {submitting ? "Creating…" : "Create Account"}
-        </button>
+          <BlurFade delay={0.05}>
+            <h2 className="text-2xl font-bold tracking-tight text-white mb-1">
+              <SparklesText sparklesCount={6}>Create Account</SparklesText>
+            </h2>
+            <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-6">
+              Start tracking your habits
+            </p>
+          </BlurFade>
 
-        <p className="text-gray-400 text-sm mt-5 text-center">
-          Already have an account?{" "}
-          <Link to="/login" className="text-green-400 hover:underline">
-            Sign in
-          </Link>
-        </p>
+          {success && (
+            <BlurFade delay={0.08}>
+              <p className="text-green-400 mb-4 text-sm">
+                ✔ Account created! Redirecting to login…
+              </p>
+            </BlurFade>
+          )}
+          {errors.general && (
+            <BlurFade delay={0.08}>
+              <p className="text-red-400 mb-4 text-sm">{errors.general}</p>
+            </BlurFade>
+          )}
 
-        <p className="text-gray-500 text-xs mt-3 text-center">
-          Just browsing?{" "}
-          <button
-            type="button"
-            onClick={() => { enterDemo(); navigate("/dashboard"); }}
-            className="text-gray-400 hover:text-white underline"
-          >
-            Try the demo
-          </button>
-        </p>
+          {field("Full Name",        "name",     "text",     "e.g. John Doe",        0.1)}
+          {field("Username",         "userName", "text",     "e.g. johndoe",         0.14)}
+          {field("Email (optional)", "email",    "email",    "e.g. john@example.com",0.18)}
+          {field("Password",         "password", "password", "Min 6 characters",     0.22)}
+
+          <BlurFade delay={0.26}>
+            <ShimmerButton
+              type="submit"
+              disabled={submitting}
+              className="w-full py-2.5 rounded-lg text-sm font-semibold mt-2"
+            >
+              {submitting ? "Creating…" : "Create Account"}
+            </ShimmerButton>
+          </BlurFade>
+
+          <BlurFade delay={0.3}>
+            <p className="text-gray-500 text-sm mt-5 text-center">
+              Already have an account?{" "}
+              <Link to="/login" className="text-green-400 hover:text-green-300 transition-colors">
+                Sign in
+              </Link>
+            </p>
+
+            <p className="text-gray-600 text-xs mt-3 text-center">
+              Just browsing?{" "}
+              <button
+                type="button"
+                onClick={() => { enterDemo(); navigate("/dashboard"); }}
+                className="text-gray-400 hover:text-gray-200 underline transition-colors"
+              >
+                <AnimatedShinyText className="text-xs">Try the demo</AnimatedShinyText>
+              </button>
+            </p>
+          </BlurFade>
+        </div>
       </form>
     </div>
   );

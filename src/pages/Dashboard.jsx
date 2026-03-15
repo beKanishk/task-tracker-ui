@@ -12,6 +12,12 @@ import FatigueCard from "../components/FatigueCard";
 import FatigueWarning from "../components/FatigueWarning";
 import DemoAuthModal from "../components/DemoAuthModal";
 
+import { BlurFade } from "../components/magicui/blur-fade";
+import { MagicCard } from "../components/magicui/magic-card";
+import { NumberTicker } from "../components/magicui/number-ticker";
+import { ShimmerButton } from "../components/magicui/shimmer-button";
+import { AnimatedShinyText } from "../components/magicui/animated-shiny-text";
+
 import { canLog } from "../utils/taskUtils";
 import {
   DEMO_USER,
@@ -191,84 +197,102 @@ export default function Dashboard() {
   /* ================= RENDER ================= */
 
   return (
-    <div className="p-6 text-white space-y-8">
+    <div className="p-4 md:p-6 text-white space-y-6">
 
       {/* ================= HEADER ================= */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">
-            Welcome back{" "}
-            <span className="text-green-400">{user.name}</span> 👋
-          </h1>
+      <BlurFade delay={0.05}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              <AnimatedShinyText className="text-white text-2xl font-bold">
+                Welcome back{" "}
+              </AnimatedShinyText>
+              <span className="text-green-400">{user.name}</span> 👋
+            </h1>
 
-          <p className="mt-1 text-sm text-gray-400">
-            Forgiveness left:{" "}
-            <span
-              className={
-                forgivenessLeft === 0
-                  ? "text-red-400 font-semibold"
-                  : forgivenessLeft === 1
-                  ? "text-yellow-400 font-semibold"
-                  : "text-green-400 font-semibold"
-              }
-            >
-              {forgivenessLeft}
-            </span>{" "}
-            / {streak.forgivenessAllowed}
-          </p>
+            <p className="mt-1 text-sm text-gray-400">
+              Forgiveness left:{" "}
+              <span
+                className={
+                  forgivenessLeft === 0
+                    ? "text-red-400 font-semibold"
+                    : forgivenessLeft === 1
+                    ? "text-yellow-400 font-semibold"
+                    : "text-green-400 font-semibold"
+                }
+              >
+                {forgivenessLeft}
+              </span>{" "}
+              / {streak.forgivenessAllowed}
+            </p>
+          </div>
+
+          <ShimmerButton
+            onClick={() => demoMode ? setShowDemoModal(true) : (window.location.href = "/tasks/new")}
+            className="px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
+          >
+            + Add Task
+          </ShimmerButton>
         </div>
-
-        <button
-          onClick={() => demoMode ? setShowDemoModal(true) : (window.location.href = "/tasks/new")}
-          className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-lg font-semibold"
-        >
-          + Add Task
-        </button>
-      </div>
+      </BlurFade>
 
       {/* ================= FORGIVENESS ================= */}
       {forgivenessPending && (
-        <ForgivenessBanner onDecision={refreshDashboard} />
+        <BlurFade delay={0.1}>
+          <ForgivenessBanner
+            missedDays={missedDays}
+            forgivenessLeft={forgivenessLeft}
+            onDecision={refreshDashboard}
+            onDemoAction={() => setShowDemoModal(true)}
+          />
+        </BlurFade>
       )}
 
       {/* ================= FATIGUE WARNING ================= */}
-      <FatigueWarning fatigue={fatigue} />
+      <BlurFade delay={0.12}>
+        <FatigueWarning fatigue={fatigue} />
+      </BlurFade>
 
       {/* ================= STATS + FATIGUE + STREAK ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
+      <BlurFade delay={0.15} className="relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
+          <StatCard label="Completed" value={summary.tasksCompleted} color="green" />
+          <StatCard label="In Progress" value={summary.tasksInProgress} color="yellow" />
+          <StatCard label="Avg Progress" value={summary.totalProgressPercent} suffix="%" color="blue" />
 
-        <StatCard label="Completed" value={summary.tasksCompleted} color="green" />
-        <StatCard label="In Progress" value={summary.tasksInProgress} color="yellow" />
-        <StatCard label="Avg Progress" value={`${summary.totalProgressPercent}%`} color="blue" />
+          <div className="lg:col-span-2">
+            <FatigueCard
+              fatigue={fatigue}
+              onRecompute={recomputeFatigue}
+              loading={fatigueLoading}
+            />
+          </div>
 
-        <div className="lg:col-span-2">
-          <FatigueCard
-            fatigue={fatigue}
-            onRecompute={recomputeFatigue}
-            loading={fatigueLoading}
-          />
+          <div className="lg:col-span-2">
+            <StreakCard streak={streak} />
+          </div>
         </div>
-
-        <div className="lg:col-span-2">
-          <StreakCard streak={streak} />
-        </div>
-      </div>
+      </BlurFade>
 
       {/* ================= HEATMAP ================= */}
-      <div className="bg-gray-800 p-4 rounded-xl border border-gray-700">
-        <MiniHeatmap activity={heatmap} />
-      </div>
+      <BlurFade delay={0.2}>
+        <div className="bg-surface-card p-4 rounded-xl border border-surface-border shadow-card">
+          <MiniHeatmap activity={heatmap} />
+        </div>
+      </BlurFade>
 
       {/* ================= TODAY TASKS ================= */}
-      <TodayTaskList
-        tasks={todayTasks}
-        onLog={(task) => {
-          if (demoMode) { setShowDemoModal(true); return; }
-          if (!canLog(task)) return;
-          setActiveTask(task);
-        }}
-        onUndo={undoTask}
-      />
+      <BlurFade delay={0.25}>
+        <TodayTaskList
+          tasks={todayTasks}
+          onLog={(task) => {
+            if (demoMode) { setShowDemoModal(true); return; }
+            if (!canLog(task)) return;
+            setActiveTask(task);
+          }}
+          onUndo={undoTask}
+        />
+      </BlurFade>
 
       <CompletionBanner
         allCompleted={
@@ -296,22 +320,37 @@ export default function Dashboard() {
 
 /* ================= STAT CARD ================= */
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, color, suffix = "" }) {
   const colors = {
-    green: "text-green-400",
+    green:  "text-green-400",
     yellow: "text-yellow-400",
-    blue: "text-blue-400",
-    red: "text-red-400",
+    blue:   "text-blue-400",
+    red:    "text-red-400",
+  };
+
+  const gradients = {
+    green:  "bg-gradient-card-green",
+    yellow: "bg-gradient-card-amber",
+    blue:   "bg-gradient-card-blue",
+    red:    "",
   };
 
   return (
-    <div className="bg-gray-800 px-4 py-3 rounded-lg border border-gray-700 h-[90px] flex flex-col justify-between">
-      <p className="text-[11px] uppercase tracking-wider text-gray-500">
+    <MagicCard
+      gradientColor={
+        color === "green" ? "#22c55e22" :
+        color === "yellow" ? "#f59e0b22" :
+        "#6366f122"
+      }
+      className={`${gradients[color]} bg-surface-card px-4 py-3 rounded-xl border border-surface-border shadow-card h-[90px] flex flex-col justify-between hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200`}
+    >
+      <p className="text-[11px] uppercase tracking-wider text-gray-500 font-medium">
         {label}
       </p>
-      <p className={`text-xl font-semibold ${colors[color]}`}>
-        {value}
+      <p className={`text-xl font-semibold tabular-nums ${colors[color]}`}>
+        <NumberTicker value={typeof value === "number" ? value : 0} />
+        {suffix}
       </p>
-    </div>
+    </MagicCard>
   );
 }

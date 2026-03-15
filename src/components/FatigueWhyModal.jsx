@@ -1,3 +1,6 @@
+import { BlurFade } from "./magicui/blur-fade";
+import { ShimmerButton } from "./magicui/shimmer-button";
+
 function getSuggestion(level, lowEffortDays, avoidedTasks) {
   if (level === "NONE") return "You're doing great! Keep up your current routine.";
 
@@ -26,44 +29,52 @@ export default function FatigueWhyModal({ fatigue, onClose }) {
   const suggestion = getSuggestion(level, lowEffortDays, avoidedTasks);
 
   return (
-    <div className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center">
-      <div className="bg-gray-900 w-full max-w-md rounded-xl p-6 border border-gray-700">
+    <div className="fixed inset-0 z-40 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-surface-elevated border border-[#2a2a42] w-full max-w-md rounded-2xl p-6 shadow-modal">
 
-        <h2 className="text-lg font-semibold mb-2">
-          Why your fatigue is {level}
-        </h2>
+        <BlurFade delay={0.05}>
+          <h2 className="text-lg font-semibold tracking-tight mb-4">
+            Why your fatigue is {level}
+          </h2>
+        </BlurFade>
 
-        <div className="text-sm text-gray-300 space-y-2">
-          <p>Fatigue score: <b>{fatigueScore}</b></p>
+        <BlurFade delay={0.1}>
+          <div className="text-sm text-gray-300 space-y-2 mb-4">
+            <p>Fatigue score: <span className="font-semibold text-white">{fatigueScore}</span></p>
 
-          {lowEffortDays > 0 && (
-            <p>Low-effort days: <b>{lowEffortDays}</b></p>
-          )}
+            {lowEffortDays > 0 && (
+              <p>Low-effort days: <span className="font-semibold text-amber-400">{lowEffortDays}</span></p>
+            )}
 
-          {avoidedTasks?.length > 0 && (
-            <div>
-              <p className="mb-1">Avoided tasks:</p>
-              <ul className="list-disc list-inside text-yellow-400">
-                {avoidedTasks.map(t => (
-                  <li key={t}>{t}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+            {avoidedTasks?.length > 0 && (
+              <div>
+                <p className="mb-1">Avoided tasks:</p>
+                <ul className="list-disc list-inside text-amber-400">
+                  {avoidedTasks.map(t => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </BlurFade>
 
-        <div className="mt-4 bg-gray-800 p-3 rounded text-sm text-gray-400">
-          💡 {suggestion}
-        </div>
+        <BlurFade delay={0.15}>
+          <div className="bg-surface-card border border-surface-border p-3 rounded-xl text-sm text-gray-400 mb-6">
+            💡 {suggestion}
+          </div>
+        </BlurFade>
 
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-sm"
-          >
-            Close
-          </button>
-        </div>
+        <BlurFade delay={0.2}>
+          <div className="flex justify-end">
+            <ShimmerButton
+              onClick={onClose}
+              className="px-5 py-2 rounded-lg text-sm font-semibold"
+            >
+              Got it
+            </ShimmerButton>
+          </div>
+        </BlurFade>
       </div>
     </div>
   );

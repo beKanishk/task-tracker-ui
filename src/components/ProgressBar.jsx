@@ -1,8 +1,8 @@
 export default function ProgressBar({ percent }) {
   return (
-    <div className="w-full bg-gray-700 rounded h-2 mt-2">
+    <div className="w-full bg-surface-border rounded-full h-1.5 mt-2">
       <div
-        className="bg-green-500 h-2 rounded"
+        className="bg-gradient-to-r from-emerald-500 to-green-400 h-1.5 rounded-full transition-all duration-500"
         style={{ width: `${percent}%` }}
       />
     </div>
