@@ -129,6 +129,28 @@ export const DEMO_TODAY_TASKS = {
   completedToday: DEMO_TASKS.filter((t) => t.completedToday),
 };
 
+// Weekly summaries — last 7 days (aligned to 2026-03-14 .. 2026-03-20)
+export const DEMO_WEEKLY = [
+  { date: "2026-03-14", tasksCompleted: 3, tasksInProgress: 1, totalProgressPercent: 80 },
+  { date: "2026-03-15", tasksCompleted: 5, tasksInProgress: 0, totalProgressPercent: 100 },
+  { date: "2026-03-16", tasksCompleted: 2, tasksInProgress: 2, totalProgressPercent: 60 },
+  { date: "2026-03-17", tasksCompleted: 4, tasksInProgress: 1, totalProgressPercent: 90 },
+  { date: "2026-03-19", tasksCompleted: 3, tasksInProgress: 0, totalProgressPercent: 75 },
+  { date: "2026-03-20", tasksCompleted: 2, tasksInProgress: 3, totalProgressPercent: 58 },
+];
+
+// Monthly report card for March 2026
+export const DEMO_MONTHLY_STATS = {
+  year: 2026,
+  month: 3,
+  totalTasksCompleted: 42,
+  avgCompletionPercent: 76,
+  activeDays: 18,
+  totalDays: 31,
+  bestDay: "2026-03-15",
+  bestDayCompleted: 5,
+};
+
 // Deterministic heatmap activity for the last 7 days
 export const DEMO_HEATMAP_7 = [3, 5, 2, 4, 6, 3, 5];
 

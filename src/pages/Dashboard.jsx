@@ -3,6 +3,8 @@ import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
 import MiniHeatmap from "../components/MiniHeatmap";
+import WeeklySummaryChart from "../components/WeeklySummaryChart";
+import MonthlyStatsCard from "../components/MonthlyStatsCard";
 import QuickLogModal from "../components/QuickLogModal";
 import TodayTaskList from "../components/TodayTaskList";
 import CompletionBanner from "../components/CompletionBanner";
@@ -26,6 +28,8 @@ import {
   DEMO_FATIGUE,
   DEMO_HEATMAP_7,
   DEMO_TODAY_TASKS,
+  DEMO_WEEKLY,
+  DEMO_MONTHLY_STATS,
 } from "../data/demoData";
 
 /* ================= HELPERS ================= */
@@ -47,6 +51,8 @@ export default function Dashboard() {
   const [fatigue, setFatigue] = useState(null);
   const [heatmap, setHeatmap] = useState([]);
   const [todayTasks, setTodayTasks] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [monthlyStats, setMonthlyStats] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fatigueLoading, setFatigueLoading] = useState(false);
@@ -70,6 +76,8 @@ export default function Dashboard() {
       ...DEMO_TODAY_TASKS.inProgressToday,
       ...DEMO_TODAY_TASKS.completedToday,
     ]);
+    setWeeklyData(DEMO_WEEKLY);
+    setMonthlyStats(DEMO_MONTHLY_STATS);
     setLoading(false);
   }
 
@@ -86,6 +94,8 @@ export default function Dashboard() {
         streakRes,
         userRes,
         fatigueRes,
+        weeklyRes,
+        monthlyStatsRes,
       ] = await Promise.all([
         api.get("/api/summary/today"),
         api.get("/api/tasks/state/today"),
@@ -93,12 +103,16 @@ export default function Dashboard() {
         api.get("/api/streak"),
         api.get("/api/users/me"),
         api.get("/api/fatigue"),
+        api.get("/api/summary/week"),
+        api.get(`/api/summary/month/stats?year=${year}&month=${month}`),
       ]);
 
       setSummary(summaryRes.data);
       setStreak(streakRes.data);
       setUser(userRes.data);
       setFatigue(fatigueRes.data);
+      setWeeklyData(weeklyRes.data);
+      setMonthlyStats(monthlyStatsRes.data);
 
       const allTodayTasks = [
         ...(taskStateRes.data.inProgressToday || []),
@@ -278,6 +292,18 @@ export default function Dashboard() {
       <BlurFade delay={0.2}>
         <div className="bg-surface-card p-4 rounded-xl border border-surface-border shadow-card">
           <MiniHeatmap activity={heatmap} />
+        </div>
+      </BlurFade>
+
+      {/* ================= WEEKLY + MONTHLY ================= */}
+      <BlurFade delay={0.23}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <WeeklySummaryChart summaries={weeklyData} />
+          </div>
+          <div>
+            <MonthlyStatsCard stats={monthlyStats} />
+          </div>
         </div>
       </BlurFade>
 
