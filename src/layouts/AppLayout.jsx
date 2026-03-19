@@ -74,10 +74,10 @@ export default function AppLayout() {
               <span>Heatmap</span>
             </NavLink>
 
-            <NavLink to="/settings" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
+            {/* <NavLink to="/settings" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
               <Bell size={16} className="shrink-0" />
               <span>Settings</span>
-            </NavLink>
+            </NavLink> */}
 
             {isAdmin && !demoMode && (
               <NavLink to="/admin" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
